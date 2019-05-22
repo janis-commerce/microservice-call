@@ -34,7 +34,7 @@ class MicroServiceCall {
 	 * @param  {String} janisClient
 	 */
 	constructor(janisClient) {
-        this.janisClient = janisClient;
+		this.janisClient = janisClient;
 		this.routerFetcher = new RouterFetcher(janisClient);
 	}
 

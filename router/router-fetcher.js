@@ -1,9 +1,9 @@
 'use strict';
 
+const request = require('request');
 const apiKey = require('./../config/api-key');
 const { endpoint, schema } = require('./../config/router');
 
-const request = require('request');
 const { MicroServiceCallInvalidService } = require('./../microservice');
 
 
