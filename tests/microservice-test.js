@@ -7,9 +7,7 @@ const assert = require('assert');
 const sandbox = sinon.createSandbox();
 
 const { MicroServiceCall } = require('./../microservice');
-const RouterFetcher = require('../router');
-
-// const RouterFetcher = coreRequire('@janniscommerce/router-fetcher');
+const RouterFetcher = require('./../router');
 
 /* eslint-disable prefer-arrow-callback */
 
