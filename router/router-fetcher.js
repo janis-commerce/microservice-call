@@ -4,8 +4,7 @@ const request = require('request');
 const apiKey = require('./../config/api-key');
 const { endpoint, schema } = require('./../config/router');
 
-const { MicroServiceCallInvalidService } = require('./../microservice');
-
+const { MicroServiceCallInvalidService } = require('../microservicecall');
 
 /**
  * @class RouterFetcher
