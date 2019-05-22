@@ -1,5 +1,5 @@
 {
-  "name": "microservice-call",
+  "name": "@janiscommerce/microservice-call",
   "version": "1.0.0",
   "description": "Allow commincation between services.",
   "main": "index.js",
