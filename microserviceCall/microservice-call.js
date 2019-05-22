@@ -16,14 +16,6 @@ const apiKey = require('./../config/api-key');
  */
 
 /**
- * Response of the router.
- * @typedef {Object} RouterResponse
- * @param {String} endpoint The endpoint of microservice.
- * @param {String} httpMethod The httpMethod of endpoint.
- */
-
-
-/**
  * @class MicroServiceCall
  * @classdesc Use this to make request to microservices.
  */
@@ -150,7 +142,7 @@ class MicroServiceCall {
 	}
 
 	/**
-	 * Make a get request to an microservice
+	 * Make a post request to an microservice
 	 * @param  {String} service The name of the microservice.
 	 * @param  {String} namespace The namespace of the microservice.
 	 * @param  {String} method The method of microservice.
@@ -164,7 +156,7 @@ class MicroServiceCall {
 	}
 
 	/**
-	 * Make a get request to an microservice
+	 * Make a put request to an microservice
 	 * @param  {String} service The name of the microservice.
 	 * @param  {String} namespace The namespace of the microservice.
 	 * @param  {String} method The method of microservice.
@@ -178,7 +170,7 @@ class MicroServiceCall {
 	}
 
 	/**
-	 * Make a get request to an microservice
+	 * Make a patch request to an microservice
 	 * @param  {String} service The name of the microservice.
 	 * @param  {String} namespace The namespace of the microservice.
 	 * @param  {String} method The method of microservice.
@@ -192,7 +184,7 @@ class MicroServiceCall {
 	}
 
 	/**
-	 * Make a get request to an microservice
+	 * Make a delete request to an microservice
 	 * @param  {String} service The name of the microservice.
 	 * @param  {String} namespace The namespace of the microservice.
 	 * @param  {String} method The method of microservice.
