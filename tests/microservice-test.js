@@ -3,11 +3,11 @@
 const nock = require('nock');
 const sinon = require('sinon');
 const assert = require('assert');
+const RouterFetcher = require('@janiscommerce/router-fetcher');
 
 const sandbox = sinon.createSandbox();
 
 const MicroServiceCall = require('./../index.js');
-const RouterFetcher = require('./../router');
 
 /* eslint-disable prefer-arrow-callback */
 

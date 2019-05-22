@@ -1,11 +1,10 @@
 'use strict';
 
 const request = require('request');
+const RouterFetcher = require('@janiscommerce/router-fetcher');
 const MicroServiceCallError = require('./microservice-call-error');
-const RouterFetcher = require('./../router');
 
 const apiKey = require('./../config/api-key');
-
 
 /**
  * Response of microservice.
