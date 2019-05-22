@@ -6,7 +6,7 @@ const assert = require('assert');
 
 const sandbox = sinon.createSandbox();
 
-const { MicroServiceCall } = require('./../microservice');
+const MicroServiceCall = require('./../index.js');
 const RouterFetcher = require('./../router');
 
 /* eslint-disable prefer-arrow-callback */
