@@ -3,7 +3,7 @@
 const nock = require('nock');
 const sinon = require('sinon');
 const assert = require('assert');
-const RouterFetcher = require('@janiscommerce/router-fetcher');
+const RouterFetcher = require('./../../router-fetcher');
 
 const sandbox = sinon.createSandbox();
 
