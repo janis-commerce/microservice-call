@@ -17,7 +17,7 @@ describe('Microservice call module.', () => {
 		sandbox.restore();
 	});
 
-	const ms = new MicroServiceCall('fizzmodarg');
+	const ms = new MicroServiceCall();
 
 	it('should return the correct response.', async() => {
 		const headersResponse = {
@@ -170,27 +170,6 @@ describe('Microservice call module.', () => {
 		await ms.post('a', 'b', 'c', {}, {}, {});
 
 		assert(callStub.calledWithExactly('a', 'b', 'c', {}, {}, 'POST', {}), '_call method not called properly.');
-	});
-
-	it('should call the microservice without "Janis-Client"', async() => {
-
-		const msWithoutJanisClient = new MicroServiceCall();
-
-		sandbox.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
-			endpoint: 'https://localhost/foo/bar',
-			httpMethod: 'GET'
-		}));
-
-		nock('https://localhost', {
-			badheaders: ['Janis-Client']
-		})
-			.get('/foo/bar')
-			.reply(200, {
-				message: 'all good.'
-			});
-
-		await msWithoutJanisClient.get('true', 'true', 'true');
-
 	});
 
 	it('should call the router fetcher without "httpMethod"', async() => {

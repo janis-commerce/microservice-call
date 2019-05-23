@@ -10,7 +10,7 @@ The ´MicroService-Call´ module allows the communication between services.
 
 ## API
 
-* `new MicroServiceCall( janisClient )`
+* `new MicroServiceCall()`
 
     MicroServiceCall Constructs.
 
@@ -48,8 +48,6 @@ The ´MicroService-Call´ module allows the communication between services.
 
 The Parametres used in the API functions.
 
-* `janisClient`
-    * type: `String`
 * `apiEndpoint`
     * type: `String`
     * The api endpoint returned by the router.
@@ -106,7 +104,7 @@ Response of Microservices
         * type: `String`
         * value: 
             * `MicroServiceCallError`. If the response code is >= 400
-            * `MicroServiceCallInvalidService`. If the service, namespace or method are Invalid
+            * `RouterFetcherError`. If the service, namespace or method are Invalid
             * `Error`. Another Error
 
 ## Usage
@@ -146,8 +144,8 @@ Response of Microservices
         if (err.name === `MicroServiceCallError`) {
             // The code of the microservice response is >= 400.
 
-        } else if (err.name === `MicroServiceCallInvalidService`) {
-            // The service, namespace or method are invalid 
+        } else if (err.name === `RouterFetcherError`) {
+            // The service, namespace or method are invalid. Error from Router-Fetcher Module
 
         } else {
             // Fatal error of request library https://www.npmjs.com/package/request
