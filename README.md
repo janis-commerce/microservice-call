@@ -44,7 +44,7 @@ The ´MicroService-Call´ module allows the communication between services.
     
     Returns a `Promise` of `MicroServiceCallResponse`.
 
-## Params
+## Parametres
 
 The Parametres used in the API functions.
 
@@ -121,7 +121,7 @@ Response of Microservices
         const get_data = await ms.get('sac', 'claim-type', 'list', null, null, {
             foo: 'value-1',
             bar: 'value-2'
-        }););
+        });
         /*
             Response example
             {
@@ -143,10 +143,10 @@ Response of Microservices
                 body: [{ code: 14, message: 'Invalid data' }]
             }
         */
-        if(err.name === `MicroServiceCallError`){
+        if (err.name === `MicroServiceCallError`) {
             // The code of the microservice response is >= 400.
 
-        } else if(errerr.name === `MicroServiceCallInvalidService`){
+        } else if (err.name === `MicroServiceCallInvalidService`) {
             // The service, namespace or method are invalid 
 
         } else {

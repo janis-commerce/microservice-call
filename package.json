@@ -13,14 +13,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://pereyra_gaston@bitbucket.org/fizzmodsrl/microservice-call.git"
+    "url": "git+https://@bitbucket.org/fizzmodsrl/microservice-call.git"
   },
   "author": "Janis",
   "license": "ISC",
   "homepage": "https://bitbucket.org/fizzmodsrl/microservice-call#readme",
   "dependencies": {
-    "request": "2.85.0",
-    "@janiscommerce/router-fetcher": "1.0.0"
+    "request": "2.85.0"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
