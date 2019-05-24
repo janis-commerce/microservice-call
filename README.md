@@ -87,25 +87,27 @@ Response of Microservices
 
 ## Errors
 
-* Returns an `Object`:
-    * `StatusCode`: 
+The errors are informed with a `MicroServiceCallError`.
+
+* `MicroServiceCallError`:
+    * `code`: 
         * type: `Number`
-        * The status code of the response.
-    * `StatusMessage`:
+        * The status code of the error.
+    * `message`:
         * type: `String`
-        * The status message of the response.
-    * `headers`:
-        * type: `Object`
-        * The headers of the response.
-    * `body`:
-        * type: `Object` or `String` (if is "")
-        * The body of the response
+        * The message of the error.
     * `name`: 
         * type: `String`
-        * value: 
-            * `MicroServiceCallError`. If the response code is >= 400
-            * `RouterFetcherError`. If the service, namespace or method are Invalid
-            * `Error`. Another Error
+        * The name of the Error
+### Codes
+
+The codes are the following:
+
+|Code	|Description						|
+|-----|-----------------------------|
+|1		|Invalid Api Key Path						|
+|2		|Microservice Failed 				|
+|3		|Reques Library Errors 	|
 
 ## Usage
 
@@ -134,20 +136,11 @@ Response of Microservices
         /*
             Error Response Example:
             {
-                headers: {}, // The headers of the response.
                 name: 'MicroServiceCallError'
-                statusCode: 406,
-                statusMessage: 'Not Acceptable',
-                body: [{ code: 14, message: 'Invalid data' }]
+                message: 'Could not find Microservice',
+                code: 2
             }
         */
-        if (err.name === `MicroServiceCallError`) {
-            // The code of the microservice response is >= 400.
-
-        } else if (err.name === `RouterFetcherError`) {
-            // The service, namespace or method are invalid. Error from Router-Fetcher Module
-
-        } else {
-            // Fatal error of request library https://www.npmjs.com/package/request
-        }
+        if (err)
+            // Do something
     }
