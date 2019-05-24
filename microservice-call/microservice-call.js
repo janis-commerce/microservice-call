@@ -1,10 +1,9 @@
 'use strict';
 
+const path = require('path');
 const request = require('request');
 const RouterFetcher = require('./../../router-fetcher');
 const MicroServiceCallError = require('./microservice-call-error');
-
-const apiKey = require('./../config/api-key');
 
 /**
  * Response of microservice.
@@ -21,8 +20,35 @@ const apiKey = require('./../config/api-key');
  */
 class MicroServiceCall {
 
-	constructor(janisClient) {
-		this.routerFetcher = new RouterFetcher(janisClient);
+	static get apiKeyPath() {
+		return path.join(process.cwd(), 'config/api-key');
+	}
+
+	constructor() {
+		this.routerFetcher = new RouterFetcher();
+	}
+
+	get config() {
+		if(!this.apiKey)
+			this._cacheApiKey();
+
+		return {
+			apiKey: this.apiKey
+		};
+	}
+
+	_cacheApiKey() {
+		let apiKey;
+
+		try {
+			/* eslint-disable global-require, import/no-dynamic-require */
+			apiKey = require(this.constructor.apiKeyPath);
+		} catch(error) {
+			throw new MicroServiceCallError('Invalid api key path', MicroServiceCallError.codes.INVALID_API_KEY_PATH);
+		}
+
+		this.apiKey = apiKey;
+
 	}
 
 	/**
@@ -30,6 +56,8 @@ class MicroServiceCall {
 	 * @return {Object}
 	 */
 	getBasicHeaders() {
+		const { apiKey } = this.config;
+
 		const basic = {
 			'Content-Type': 'application/json',
 			'x-api-key': apiKey
@@ -104,12 +132,12 @@ class MicroServiceCall {
 				method: httpMethod
 			}, (err, httpResponse, bodyResponse) => {
 				if(err)
-					return reject(err);
+					return reject(new MicroServiceCallError(err, MicroServiceCallError.codes.REQUEST_LIB_ERROR));
 
 				const { headers, statusCode, statusMessage } = httpResponse;
 
 				if(httpResponse.statusCode >= 400)
-					return reject(new MicroServiceCallError(statusCode, statusMessage, headers, bodyResponse));
+					return reject(new MicroServiceCallError('Microservice failed', MicroServiceCallError.codes.MICROSERVICE_FAILED));
 
 				resolve({
 					headers,
