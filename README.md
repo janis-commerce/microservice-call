@@ -1,12 +1,15 @@
 # Microservice-Call
 
-The ´MicroService-Call´ module allows the communication between services. 
+[![Build Status](https://travis-ci.org/janis-commerce/microservice-call.svg?branch=master)](https://travis-ci.org/janis-commerce/router-fetcher)
+[![Coverage Status](https://coveralls.io/repos/github/janis-commerce/microservice-call/badge.svg?branch=master)](https://coveralls.io/github/janis-commerce/router-fetcher?branch=master)
+
+The `MicroService-Call` module allows the communication between services. 
 
 ## Installation
 
-
-    npm install @janiscommerce/microservice-call
-
+```
+npm install @janiscommerce/microservice-call
+```
 
 ## API
 
@@ -107,40 +110,42 @@ The codes are the following:
 |-----|-----------------------------|
 |1		|Invalid Api Key Path						|
 |2		|Microservice Failed 				|
-|3		|Reques Library Errors 	|
+|3		|Request Library Errors 	|
 
 ## Usage
 
-    const MicroServiceCall = require('@janiscommerce/microservice-call');
-    
-    // Instance with "Janis Client"
-    const ms = new MicroServiceCall('fizzmodarg');
+```javascript
+const MicroServiceCall = require('@janiscommerce/microservice-call');
 
-    // Make a GET request to ms "sac" with the namespace "claim-type" and method "list".
-    try {
-        const get_data = await ms.get('sac', 'claim-type', 'list', null, null, {
-            foo: 'value-1',
-            bar: 'value-2'
-        });
-        /*
-            Response example
-            {
-                headers: {}, // The headers of the response.
-                statusCode: 200,
-                statusMessage: 'Ok',
-                body: [{ foo: 'bar' }]
-            }
-        */
+// Instance with "Janis Client"
+const ms = new MicroServiceCall('fizzmodarg');
 
-    } catch(err){
-        /*
-            Error Response Example:
-            {
-                name: 'MicroServiceCallError'
-                message: 'Could not find Microservice',
-                code: 2
-            }
-        */
-        if (err)
-            // Do something
-    }
+// Make a GET request to ms "sac" with the namespace "claim-type" and method "list".
+try {
+    const get_data = await ms.get('sac', 'claim-type', 'list', null, null, {
+        foo: 'value-1',
+        bar: 'value-2'
+    });
+    /*
+        Response example
+        {
+            headers: {}, // The headers of the response.
+            statusCode: 200,
+            statusMessage: 'Ok',
+            body: [{ foo: 'bar' }]
+        }
+    */
+
+} catch(err){
+    /*
+        Error Response Example:
+        {
+            name: 'MicroServiceCallError'
+            message: 'Could not find Microservice',
+            code: 2
+        }
+    */
+    if (err)
+        // Do something
+}
+```
