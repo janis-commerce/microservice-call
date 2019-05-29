@@ -1,8 +1,5 @@
 # Microservice-Call
 
-[![Build Status](https://travis-ci.org/janis-commerce/microservice-call.svg?branch=master)](https://travis-ci.org/janis-commerce/microservice-call)
-[![Coverage Status](https://coveralls.io/repos/github/janis-commerce/microservice-call/badge.svg?branch=master)](https://coveralls.io/github/janis-commerce/microservice-call?branch=master)
-
 The `MicroService-Call` module allows the communication between services. 
 
 ## Installation
