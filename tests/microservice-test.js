@@ -4,7 +4,7 @@ const nock = require('nock');
 const sinon = require('sinon');
 const assert = require('assert');
 const mockRequire = require('mock-require');
-const RouterFetcher = require('./../../router-fetcher');
+const RouterFetcher = require('@janiscommerce/router-fetcher');
 
 const sandbox = sinon.createSandbox();
 

@@ -2,7 +2,7 @@
 
 const path = require('path');
 const request = require('request');
-const RouterFetcher = require('./../../router-fetcher');
+const RouterFetcher = require('@janiscommerce/router-fetcher');
 const MicroServiceCallError = require('./microservice-call-error');
 
 /**
