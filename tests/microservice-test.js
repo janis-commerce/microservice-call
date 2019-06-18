@@ -39,12 +39,12 @@ describe('Microservice call module.', () => {
 
 	const ms = new MicroServiceCall();
 
-	it('should return RouterFetcherError', async() => {
+	it('should return RouterFetcherError', async function() {
 		await assert.rejects(() => ms.get('any', 'any', 'any'),
 			{ name: 'RouterFetcherError' });
 	});
 
-	it('should return the correct response.', async() => {
+	it('should return the correct response.', async function() {
 		mockRouterFetcherPaths({}, validRouter);
 		mockMicroServiceCallPaths({});
 
@@ -73,7 +73,7 @@ describe('Microservice call module.', () => {
 		});
 	});
 
-	it('should send the correct values and return the correct values from ms too.', async() => {
+	it('should send the correct values and return the correct values from ms too.', async function() {
 		mockRouterFetcherPaths({}, validRouter);
 		mockMicroServiceCallPaths({});
 
@@ -102,7 +102,7 @@ describe('Microservice call module.', () => {
 		});
 	});
 
-	it('should return an "MicroServiceCallError" when the microservice called return an error.', async() => {
+	it('should return an "MicroServiceCallError" when the microservice called return an error.', async function() {
 		mockRouterFetcherPaths({}, validRouter);
 		mockMicroServiceCallPaths({});
 
@@ -121,7 +121,7 @@ describe('Microservice call module.', () => {
 			{ name: 'MicroServiceCallError', code: MicroServiceCallError.codes.MICROSERVICE_FAILED });
 	});
 
-	it('should make the request with the correct params.', async() => {
+	it('should make the request with the correct params.', async function() {
 		mockRouterFetcherPaths({}, validRouter);
 		mockMicroServiceCallPaths({});
 
@@ -151,7 +151,7 @@ describe('Microservice call module.', () => {
 		});
 	});
 
-	it('should return an generic error when the request library cannot make the call to the ms.', async() => {
+	it('should return an generic error when the request library cannot make the call to the ms.', async function() {
 		mockRouterFetcherPaths({}, validRouter);
 		mockMicroServiceCallPaths({});
 
@@ -167,7 +167,7 @@ describe('Microservice call module.', () => {
 
 	});
 
-	it('should call private `_call` on put method with correct params', async() => {
+	it('should call private `_call` on put method with correct params', async function() {
 		mockRouterFetcherPaths({}, validRouter);
 		mockMicroServiceCallPaths({});
 
@@ -178,7 +178,7 @@ describe('Microservice call module.', () => {
 		assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'PUT', {}), '_call method not called properly.');
 	});
 
-	it('should call private `_call` on patch method with correct params', async() => {
+	it('should call private `_call` on patch method with correct params', async function() {
 		mockRouterFetcherPaths({}, validRouter);
 		mockMicroServiceCallPaths({});
 
@@ -189,7 +189,7 @@ describe('Microservice call module.', () => {
 		assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'PATCH', {}), '_call method not called properly.');
 	});
 
-	it('should call private `_call` on delete method with correct params', async() => {
+	it('should call private `_call` on delete method with correct params', async function() {
 		mockRouterFetcherPaths({}, validRouter);
 		mockMicroServiceCallPaths({});
 
@@ -200,7 +200,7 @@ describe('Microservice call module.', () => {
 		assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'DELETE', {}), '_call method not called properly.');
 	});
 
-	it('should call private `_call` on get method with correct params', async() => {
+	it('should call private `_call` on get method with correct params', async function() {
 		mockRouterFetcherPaths({}, validRouter);
 		mockMicroServiceCallPaths({});
 
@@ -211,7 +211,7 @@ describe('Microservice call module.', () => {
 		assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'GET', {}), '_call method not called properly.');
 	});
 
-	it('should call private `_call` on post method with correct params', async() => {
+	it('should call private `_call` on post method with correct params', async function() {
 		mockRouterFetcherPaths({}, validRouter);
 		mockMicroServiceCallPaths({});
 
@@ -222,7 +222,7 @@ describe('Microservice call module.', () => {
 		assert(callStub.calledWithExactly('a', 'b', 'c', {}, {}, 'POST', {}), '_call method not called properly.');
 	});
 
-	it('should call the router fetcher without "httpMethod"', async() => {
+	it('should call the router fetcher without "httpMethod"', async function() {
 		mockRouterFetcherPaths({}, validRouter);
 		mockMicroServiceCallPaths({});
 
