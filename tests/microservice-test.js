@@ -9,7 +9,7 @@ const RouterFetcher = require('@janiscommerce/router-fetcher');
 const sandbox = sinon.createSandbox();
 
 const MicroServiceCall = require('./../index.js');
-const { MicroServiceCallError } = require('./../microservice-call');
+const { MicroServiceCallError } = require('./../lib');
 
 /* eslint-disable prefer-arrow-callback */
 

@@ -1,5 +1,5 @@
 'use strict';
 
-const { MicroServiceCall } = require('./microservice-call');
+const { MicroServiceCall } = require('./lib');
 
 module.exports = MicroServiceCall;
