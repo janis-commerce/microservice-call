@@ -3,15 +3,13 @@
 const nock = require('nock');
 const sinon = require('sinon');
 const assert = require('assert');
-const mockRequire = require('mock-require');
 const RouterFetcher = require('@janiscommerce/router-fetcher');
+const Settings = require('@janiscommerce/settings');
 
 const sandbox = sinon.createSandbox();
 
 const MicroServiceCall = require('./../index.js');
 const { MicroServiceCallError } = require('./../lib');
-
-/* eslint-disable prefer-arrow-callback */
 
 describe('Microservice call module.', () => {
 
@@ -20,33 +18,66 @@ describe('Microservice call module.', () => {
 		schema: 'http://valid-router:3014/api/services/{serviceName}/schema'
 	};
 
-	const mockRouterFetcherPaths = (apiKey, routerConfig) => {
-		/* eslint-disable global-require, import/no-dynamic-require */
-		mockRequire(RouterFetcher.apiKeyPath, apiKey);
-		mockRequire(RouterFetcher.routerConfigPath, routerConfig);
+	const validApiKey = 'eFadkj840sdfjkesl';
 
-	};
+	let ms;
+	let settingsStub;
 
-	const mockMicroServiceCallPaths = apiKey => {
-		/* eslint-disable global-require, import/no-dynamic-require */
-		mockRequire(MicroServiceCall.apiKeyPath, apiKey);
-	};
+	beforeEach(() => {
+		ms = new MicroServiceCall();
+		settingsStub = sandbox.stub(Settings, 'get');
+	});
 
 	afterEach(() => {
 		sandbox.restore();
-		mockRequire.stopAll();
 	});
 
-	const ms = new MicroServiceCall();
+	it('should return api-key from Settings', () => {
 
-	it('should return RouterFetcherError', async function() {
+		settingsStub.withArgs(MicroServiceCall.apiKeyField)
+			.returns(validApiKey);
+
+		assert.strictEqual(ms.apiKey, validApiKey);
+
+		sandbox.assert.calledOnce(Settings.get);
+		sandbox.assert.calledWithExactly(Settings.get.getCall(0), MicroServiceCall.apiKeyField);
+	});
+
+	it('should return apiKey from Settings but in a second call should use cache', () => {
+		settingsStub.withArgs(MicroServiceCall.apiKeyField).returns(validApiKey);
+
+		assert.strictEqual(ms.apiKey, validApiKey);
+		assert.strictEqual(ms.apiKey, validApiKey);
+
+		sandbox.assert.calledOnce(Settings.get);
+		sandbox.assert.calledWithExactly(Settings.get.getCall(0), MicroServiceCall.apiKeyField);
+
+	});
+
+	it('should throw Error when Settings for apiKey not exist', () => {
+		settingsStub.withArgs(MicroServiceCall.apiKeyField).returns();
+
+		assert.throws(() => ms.apiKey, { name: 'MicroServiceCallError', code: MicroServiceCallError.codes.INVALID_API_KEY_SETTING });
+		sandbox.assert.calledOnce(Settings.get);
+		sandbox.assert.calledWithExactly(Settings.get.getCall(0), MicroServiceCall.apiKeyField);
+
+	});
+
+	it('should return RouterFetcherError when no Settings', async () => {
+
+		settingsStub.returns();
+
 		await assert.rejects(() => ms.get('any', 'any', 'any'),
 			{ name: 'RouterFetcherError' });
 	});
 
-	it('should return the correct response.', async function() {
-		mockRouterFetcherPaths({}, validRouter);
-		mockMicroServiceCallPaths({});
+	it('should return the correct response.', async () => {
+
+		settingsStub.withArgs(RouterFetcher.routerConfigField)
+			.returns(validRouter);
+
+		settingsStub.withArgs(MicroServiceCall.apiKeyField)
+			.returns(validApiKey);
 
 		const headersResponse = {
 			'content-type': 'application/json'
@@ -73,9 +104,13 @@ describe('Microservice call module.', () => {
 		});
 	});
 
-	it('should send the correct values and return the correct values from ms too.', async function() {
-		mockRouterFetcherPaths({}, validRouter);
-		mockMicroServiceCallPaths({});
+	it('should send the correct values and return the correct values from ms too.', async () => {
+
+		settingsStub.withArgs(RouterFetcher.routerConfigField)
+			.returns(validRouter);
+
+		settingsStub.withArgs(MicroServiceCall.apiKeyField)
+			.returns(validApiKey);
 
 		const headersResponse = {
 			'content-type': 'application/json'
@@ -102,9 +137,13 @@ describe('Microservice call module.', () => {
 		});
 	});
 
-	it('should return an "MicroServiceCallError" when the microservice called return an error.', async function() {
-		mockRouterFetcherPaths({}, validRouter);
-		mockMicroServiceCallPaths({});
+	it('should return an "MicroServiceCallError" when the microservice called return an error.', async () => {
+
+		settingsStub.withArgs(RouterFetcher.routerConfigField)
+			.returns(validRouter);
+
+		settingsStub.withArgs(MicroServiceCall.apiKeyField)
+			.returns(validApiKey);
 
 		sandbox.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
 			endpoint: 'https://localhost/foo/bar',
@@ -121,9 +160,13 @@ describe('Microservice call module.', () => {
 			{ name: 'MicroServiceCallError', code: MicroServiceCallError.codes.MICROSERVICE_FAILED });
 	});
 
-	it('should make the request with the correct params.', async function() {
-		mockRouterFetcherPaths({}, validRouter);
-		mockMicroServiceCallPaths({});
+	it('should make the request with the correct params.', async () => {
+
+		settingsStub.withArgs(RouterFetcher.routerConfigField)
+			.returns(validRouter);
+
+		settingsStub.withArgs(MicroServiceCall.apiKeyField)
+			.returns(validApiKey);
 
 		const headersResponse = {
 			'content-type': 'application/json'
@@ -151,25 +194,33 @@ describe('Microservice call module.', () => {
 		});
 	});
 
-	it('should return an generic error when the request library cannot make the call to the ms.', async function() {
-		mockRouterFetcherPaths({}, validRouter);
-		mockMicroServiceCallPaths({});
+	it('should return an generic error when the request library cannot make the call to the ms.', async () => {
+
+		settingsStub.withArgs(RouterFetcher.routerConfigField)
+			.returns(validRouter);
+
+		settingsStub.withArgs(MicroServiceCall.apiKeyField)
+			.returns(validApiKey);
 
 		sandbox.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
 			endpoint: 'endpointunreachable',
 			httpMethod: 'POST'
 		}));
 
-		await assert.rejects(() => ms.post('false', 'false', 'false'), {
+		await assert.rejects(ms.post('false', 'false', 'false'), {
 			name: 'MicroServiceCallError',
 			code: MicroServiceCallError.codes.REQUEST_LIB_ERROR
 		});
 
 	});
 
-	it('should call private `_call` on put method with correct params', async function() {
-		mockRouterFetcherPaths({}, validRouter);
-		mockMicroServiceCallPaths({});
+	it('should call private `_call` on put method with correct params', async () => {
+
+		settingsStub.withArgs(RouterFetcher.routerConfigField)
+			.returns(validRouter);
+
+		settingsStub.withArgs(MicroServiceCall.apiKeyField)
+			.returns(validApiKey);
 
 		const spy = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
@@ -178,9 +229,13 @@ describe('Microservice call module.', () => {
 		assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'PUT', {}), '_call method not called properly.');
 	});
 
-	it('should call private `_call` on patch method with correct params', async function() {
-		mockRouterFetcherPaths({}, validRouter);
-		mockMicroServiceCallPaths({});
+	it('should call private `_call` on patch method with correct params', async () => {
+
+		settingsStub.withArgs(RouterFetcher.routerConfigField)
+			.returns(validRouter);
+
+		settingsStub.withArgs(MicroServiceCall.apiKeyField)
+			.returns(validApiKey);
 
 		const spy = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
@@ -189,9 +244,13 @@ describe('Microservice call module.', () => {
 		assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'PATCH', {}), '_call method not called properly.');
 	});
 
-	it('should call private `_call` on delete method with correct params', async function() {
-		mockRouterFetcherPaths({}, validRouter);
-		mockMicroServiceCallPaths({});
+	it('should call private `_call` on delete method with correct params', async () => {
+
+		settingsStub.withArgs(RouterFetcher.routerConfigField)
+			.returns(validRouter);
+
+		settingsStub.withArgs(MicroServiceCall.apiKeyField)
+			.returns(validApiKey);
 
 		const spy = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
@@ -200,9 +259,13 @@ describe('Microservice call module.', () => {
 		assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'DELETE', {}), '_call method not called properly.');
 	});
 
-	it('should call private `_call` on get method with correct params', async function() {
-		mockRouterFetcherPaths({}, validRouter);
-		mockMicroServiceCallPaths({});
+	it('should call private `_call` on get method with correct params', async () => {
+
+		settingsStub.withArgs(RouterFetcher.routerConfigField)
+			.returns(validRouter);
+
+		settingsStub.withArgs(MicroServiceCall.apiKeyField)
+			.returns(validApiKey);
 
 		const spy = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
@@ -211,9 +274,13 @@ describe('Microservice call module.', () => {
 		assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'GET', {}), '_call method not called properly.');
 	});
 
-	it('should call private `_call` on post method with correct params', async function() {
-		mockRouterFetcherPaths({}, validRouter);
-		mockMicroServiceCallPaths({});
+	it('should call private `_call` on post method with correct params', async () => {
+
+		settingsStub.withArgs(RouterFetcher.routerConfigField)
+			.returns(validRouter);
+
+		settingsStub.withArgs(MicroServiceCall.apiKeyField)
+			.returns(validApiKey);
 
 		const callStub = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
@@ -222,9 +289,13 @@ describe('Microservice call module.', () => {
 		assert(callStub.calledWithExactly('a', 'b', 'c', {}, {}, 'POST', {}), '_call method not called properly.');
 	});
 
-	it('should call the router fetcher without "httpMethod"', async function() {
-		mockRouterFetcherPaths({}, validRouter);
-		mockMicroServiceCallPaths({});
+	it('should call the router fetcher without "httpMethod"', async () => {
+
+		settingsStub.withArgs(RouterFetcher.routerConfigField)
+			.returns(validRouter);
+
+		settingsStub.withArgs(MicroServiceCall.apiKeyField)
+			.returns(validApiKey);
 
 		const getEndpointStub = sandbox.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({}));
 
