@@ -8,6 +8,29 @@ The `MicroService-Call` module allows the communication between services.
 npm install @janiscommerce/microservice-call
 ```
 
+## Configuration
+
+`MicroService Call` uses a setting JSON file.
+
+It's located in `path/to/root/[MS_PATH]/config/.janiscommercerc.json.`
+
+Needs the following fields
+
+- `apiKey`, `string`, Client Api Key.
+
+### Example
+
+In `path/to/root/[MS_PATH]/config/.janiscommercerc.json.`
+
+```JSON
+{
+	"apiKey": "aEdE312Xsa2dvxa9oPih32nFg"
+}
+```
+### See Also
+
+`MicroService Call` uses `Router-Fetcher` check its configuration [HERE](https://bitbucket.org/fizzmodsrl/router-fetcher/src/master/README.md)
+
 ## API
 
 * `new MicroServiceCall()`
