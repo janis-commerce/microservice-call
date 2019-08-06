@@ -23,18 +23,18 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/fizzmodsrl/microservice-call#readme",
   "dependencies": {
-    "request": "2.85.0",
-    "@janiscommerce/router-fetcher": "^1.0.0"
+    "@janiscommerce/router-fetcher": "^1.0.0",
+    "@janiscommerce/settings": "^1.0.1",
+    "request": "2.85.0"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0",
+    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-plugin-import": "^2.18.2",
+    "husky": "^2.7.0",
     "mocha": "^5.2.0",
-    "mock-require": "^3.0.3",
     "nock": "^10.0.6",
     "nyc": "^14.1.0",
-    "sinon": "^7.3.2",
-    "husky": "^2.4.1"
+    "sinon": "^7.4.1"
   }
 }
