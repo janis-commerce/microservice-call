@@ -12,7 +12,7 @@ npm install @janiscommerce/microservice-call
 
 `MicroService Call` uses a setting JSON file.
 
-It's located in `path/to/root/[MS_PATH]/config/.janiscommercerc.json.`
+It's located in `path/to/root/[MS_PATH]/config/.janiscommercerc.json`
 
 Needs the following fields
 
