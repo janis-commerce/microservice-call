@@ -23,7 +23,7 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/fizzmodsrl/microservice-call#readme",
   "dependencies": {
-    "@janiscommerce/router-fetcher": "^1.0.0",
+    "@janiscommerce/router-fetcher": "^2.0.0",
     "@janiscommerce/settings": "^1.0.1",
     "request": "2.85.0"
   },
