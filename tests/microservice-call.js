@@ -4,51 +4,45 @@ const nock = require('nock');
 const sinon = require('sinon');
 const assert = require('assert');
 const RouterFetcher = require('@janiscommerce/router-fetcher');
-const Settings = require('@janiscommerce/settings');
-
-const sandbox = sinon.createSandbox();
 
 const MicroServiceCall = require('../');
 const MicroServiceCallError = require('../lib/microservice-call-error');
 
 describe('MicroService call', () => {
 
-	const validRouter = {
-		endpoint: 'http://valid-router:3014/api/endpoint',
-		schema: 'http://valid-router:3014/api/services/{serviceName}/schema'
-	};
+	const oldEnv = { ...process.env };
+
+	before(() => {
+		process.env.JANIS_SERVICE_NAME = 'dummy-service';
+		process.env.JANIS_SERVICE_SECRET = 'dummy-secret';
+	});
+
+	after(() => {
+		process.env = oldEnv;
+	});
 
 	let ms;
-	let settingsStub;
+	describe('Microservice call', () => {
 
-	describe('Microservice call module.', () => {
 		beforeEach(() => {
 			ms = new MicroServiceCall();
-			settingsStub = sandbox.stub(Settings, 'get');
 		});
 
 		afterEach(() => {
-			sandbox.restore();
+			sinon.restore();
 		});
 
-		it('should return RouterFetcherError when no Settings', async () => {
-
-			settingsStub.returns();
-
-			await assert.rejects(() => ms.get('any', 'any', 'any'),
-				{ name: 'RouterFetcherError' });
+		it('Should return a RouterFetcherError when no Settings', async () => {
+			await assert.rejects(() => ms.get('any', 'any', 'any'), { name: 'RouterFetcherError' });
 		});
 
-		it('should return the correct response.', async () => {
-
-			settingsStub.withArgs(RouterFetcher.routerConfigField)
-				.returns(validRouter);
+		it('Should return the correct response object on successful calls', async () => {
 
 			const headersResponse = {
 				'content-type': 'application/json'
 			};
 
-			sandbox.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
 				endpoint: 'https://localhost/foo/bar',
 				httpMethod: 'get'
 			}));
@@ -69,16 +63,13 @@ describe('MicroService call', () => {
 			});
 		});
 
-		it('should send the correct values and return the correct values from ms too.', async () => {
-
-			settingsStub.withArgs(RouterFetcher.routerConfigField)
-				.returns(validRouter);
+		it('Should send the correct values and return the correct values from ms', async () => {
 
 			const headersResponse = {
 				'content-type': 'application/json'
 			};
 
-			sandbox.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
 				endpoint: 'https://localhost/foo/bar',
 				httpMethod: 'POST'
 			}));
@@ -99,12 +90,9 @@ describe('MicroService call', () => {
 			});
 		});
 
-		it('should return an "MicroServiceCallError" when the microservice called return an error.', async () => {
+		it('Should return a MicroServiceCallError when the called microservice returns an error', async () => {
 
-			settingsStub.withArgs(RouterFetcher.routerConfigField)
-				.returns(validRouter);
-
-			sandbox.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
 				endpoint: 'https://localhost/foo/bar',
 				httpMethod: 'get'
 			}));
@@ -112,27 +100,72 @@ describe('MicroService call', () => {
 			nock('https://localhost')
 				.get('/foo/bar')
 				.reply(404, {
-					message: 'some failed.'
+					message: 'Something failed'
 				});
 
 			await assert.rejects(() => ms.get('good', 'good', 'good'),
 				{ name: 'MicroServiceCallError', code: MicroServiceCallError.codes.MICROSERVICE_FAILED });
 		});
 
-		it('should make the request with the correct params.', async () => {
+		it('Should use response body `message` prop as error message if present', async () => {
 
-			settingsStub.withArgs(RouterFetcher.routerConfigField)
-				.returns(validRouter);
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
+				endpoint: 'https://localhost/foo/bar',
+				httpMethod: 'get'
+			}));
+
+			nock('https://localhost')
+				.get('/foo/bar')
+				.reply(404, {
+					message: 'Something failed'
+				});
+
+			await assert.rejects(() => ms.get('good', 'good', 'good'),
+				{ name: 'MicroServiceCallError', code: MicroServiceCallError.codes.MICROSERVICE_FAILED, message: 'Microservice failed (404): Something failed' });
+		});
+
+		it('Should use response body stringified as error message if message prop is not present', async () => {
+
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
+				endpoint: 'https://localhost/foo/bar',
+				httpMethod: 'get'
+			}));
+
+			nock('https://localhost')
+				.get('/foo/bar')
+				.reply(404, {
+					foo: 'bar'
+				});
+
+			await assert.rejects(() => ms.get('good', 'good', 'good'),
+				{ name: 'MicroServiceCallError', code: MicroServiceCallError.codes.MICROSERVICE_FAILED, message: 'Microservice failed (404): {"foo":"bar"}' });
+		});
+
+		it('Should use a generic message as error message if response body is empty', async () => {
+
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
+				endpoint: 'https://localhost/foo/bar',
+				httpMethod: 'get'
+			}));
+
+			nock('https://localhost')
+				.get('/foo/bar')
+				.reply(404);
+
+			await assert.rejects(() => ms.get('good', 'good', 'good'),
+				{ name: 'MicroServiceCallError', code: MicroServiceCallError.codes.MICROSERVICE_FAILED, message: 'Microservice failed (404): No response body' });
+		});
+
+		it('Should make the request with the correct params', async () => {
 
 			const headersResponse = {
 				'content-type': 'application/json'
 			};
 
-			sandbox.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
 				endpoint: 'http://localhost/api/alarms/{alarmName}/state',
 				httpMethod: 'POST'
 			}));
-
 
 			const mockMsResponse = { name: 'foo' };
 
@@ -150,97 +183,134 @@ describe('MicroService call', () => {
 			});
 		});
 
-		it('should return an generic error when the request library cannot make the call to the ms.', async () => {
+		it('Should return the lib error when the request library cannot make the call to the ms', async () => {
 
-			settingsStub.withArgs(RouterFetcher.routerConfigField)
-				.returns(validRouter);
-
-			sandbox.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
-				endpoint: 'endpointunreachable',
-				httpMethod: 'POST'
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
+				endpoint: 'https://localhost/foo/bar',
+				httpMethod: 'get'
 			}));
+
+			nock('https://localhost')
+				.get('/foo/bar')
+				.replyWithError('Some lib error');
 
 			await assert.rejects(ms.post('false', 'false', 'false'), {
 				name: 'MicroServiceCallError',
-				code: MicroServiceCallError.codes.REQUEST_LIB_ERROR
+				code: MicroServiceCallError.codes.REQUEST_LIB_ERROR,
+				message: 'Some lib error'
 			});
-
 		});
 
-		it('should call private `_call` on put method with correct params', async () => {
+		it('Should call private `_call` on put method with correct params', async () => {
 
-			settingsStub.withArgs(RouterFetcher.routerConfigField)
-				.returns(validRouter);
-
-			const spy = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
+			const spy = sinon.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
 			await ms.put('a', 'b', 'c', {}, {}, {});
 
 			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'PUT', {}), '_call method not called properly.');
 		});
 
-		it('should call private `_call` on patch method with correct params', async () => {
+		it('Should call private `_call` on patch method with correct params', async () => {
 
-			settingsStub.withArgs(RouterFetcher.routerConfigField)
-				.returns(validRouter);
-
-			const spy = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
+			const spy = sinon.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
 			await ms.patch('a', 'b', 'c', {}, {}, {});
 
 			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'PATCH', {}), '_call method not called properly.');
 		});
 
-		it('should call private `_call` on delete method with correct params', async () => {
+		it('Should call private `_call` on delete method with correct params', async () => {
 
-			settingsStub.withArgs(RouterFetcher.routerConfigField)
-				.returns(validRouter);
-
-			const spy = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
+			const spy = sinon.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
 			await ms.delete('a', 'b', 'c', {}, {}, {});
 
 			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'DELETE', {}), '_call method not called properly.');
 		});
 
-		it('should call private `_call` on get method with correct params', async () => {
+		it('Should call private `_call` on get method with correct params', async () => {
 
-			settingsStub.withArgs(RouterFetcher.routerConfigField)
-				.returns(validRouter);
-
-			const spy = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
+			const spy = sinon.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
 			await ms.get('a', 'b', 'c', {}, {}, {});
 
 			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'GET', {}), '_call method not called properly.');
 		});
 
-		it('should call private `_call` on post method with correct params', async () => {
+		it('Should call private `_call` on post method with correct params', async () => {
 
-			settingsStub.withArgs(RouterFetcher.routerConfigField)
-				.returns(validRouter);
-
-			const callStub = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
+			const callStub = sinon.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
 			await ms.post('a', 'b', 'c', {}, {}, {});
 
 			assert(callStub.calledWithExactly('a', 'b', 'c', {}, {}, 'POST', {}), '_call method not called properly.');
 		});
 
-		it('should call the router fetcher without "httpMethod"', async () => {
+		it('Should call the router fetcher without "httpMethod"', async () => {
 
-			settingsStub.withArgs(RouterFetcher.routerConfigField)
-				.returns(validRouter);
+			const getEndpointStub = sinon.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({}));
 
-			const getEndpointStub = sandbox.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({}));
-
-			sandbox.stub(MicroServiceCall.prototype, '_makeRequest').callsFake(() => null);
+			sinon.stub(MicroServiceCall.prototype, '_makeRequest').callsFake(() => null);
 
 			await ms._call('service', 'namespace', 'method', {}, {});
 
 			assert(getEndpointStub.calledWithExactly('service', 'namespace', 'method', null));
 		});
+
+		it('Should make the request with the service name and secret from env variables if constructor arguments are empty', async () => {
+
+			const headersResponse = {
+				'content-type': 'application/json'
+			};
+
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
+				endpoint: 'http://localhost/api/alarms/{alarmName}/state',
+				httpMethod: 'POST'
+			}));
+
+
+			const mockMsResponse = { name: 'foo' };
+
+			const reqheaders = {
+				'content-type': 'application/json',
+				'janis-api-key': 'dummy-service',
+				'janis-api-secret': 'dummy-secret'
+			};
+
+			nock('http://localhost/api/alarms/foo/state', { reqheaders })
+				.post('', { foo: 'bar' })
+				.reply(200, mockMsResponse, headersResponse);
+
+			await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
+		});
+
+		it('Should make the request with the service name and secret from constructor arguments', async () => {
+
+			const otherMs = new MicroServiceCall('my-service-name', 'my-secret');
+
+			const headersResponse = {
+				'content-type': 'application/json'
+			};
+
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
+				endpoint: 'http://localhost/api/alarms/{alarmName}/state',
+				httpMethod: 'POST'
+			}));
+
+
+			const mockMsResponse = { name: 'foo' };
+
+			const reqheaders = {
+				'content-type': 'application/json',
+				'janis-api-key': 'my-service-name',
+				'janis-api-secret': 'my-secret'
+			};
+
+			nock('http://localhost/api/alarms/foo/state', { reqheaders })
+				.post('', { foo: 'bar' })
+				.reply(200, mockMsResponse, headersResponse);
+
+			await otherMs.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
+		});
 	});
-
-
 });
