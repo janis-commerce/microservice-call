@@ -1,6 +1,6 @@
-# Microservice-Call
+# Microservice Call
 
-The `MicroService-Call` module allows the communication between services. 
+The `MicroService Call` module allows the communication between services.
 
 ## Installation
 
@@ -10,162 +10,141 @@ npm install @janiscommerce/microservice-call
 
 ## Configuration
 
-`MicroService Call` uses a setting JSON file.
-
-It's located in `path/to/root/[MS_PATH]/config/.janiscommercerc.json`
-
-Needs the following fields
-
-- `apiKey`, `string`, Client Api Key.
-
-### Example
-
-In `path/to/root/[MS_PATH]/config/.janiscommercerc.json.`
-
-```JSON
-{
-	"apiKey": "aEdE312Xsa2dvxa9oPih32nFg"
-}
-```
-### See Also
-
-`MicroService Call` uses `Router-Fetcher` check its configuration [HERE](https://bitbucket.org/fizzmodsrl/router-fetcher/src/master/README.md)
+`MicroService Call` uses `Router Fetcher` check its configuration [here](https://www.npmjs.com/package/@janiscommerce/router-fetcher)
 
 ## API
 
-* `new MicroServiceCall()`
+* `new MicroServiceCall(serviceName, serviceSecret)`
 
-    MicroServiceCall Constructs.
+	MicroServiceCall Constructs.
 
-* `getBasicHeaders()`
+	Receives optional `serviceName` and `serviceSecret` strings. It they are not passed, it uses `JANIS_SERVICE_NAME` and `JANIS_SERVICE_SECRET` env variables
 
-    Get the basic headers of that will be set in the request to the microservice.
-
-    Returns an `Object`.
-    
 * `get(service, namespace, method, requestData, requestHeaders, endpointParameters)`
 
-    Make a `GET` request to an microservice. 
-    
-    Returns a `Promise` of `MicroServiceCallResponse`.
+	Make a `GET` request to an microservice.
+
+	Returns a `Promise` of `MicroServiceCallResponse`.
 
 * `post(service, namespace, method, requestData, requestHeaders, endpointParameters)`
 
-    Make a `POST` request to an microservice. 
-    
-    Returns a `Promise` of `MicroServiceCallResponse`.
+	Make a `POST` request to an microservice.
+
+	Returns a `Promise` of `MicroServiceCallResponse`.
 
 * `put(service, namespace, method, requestData, requestHeaders, endpointParameters)`
 
-    Make a `PUT` request to an microservice. 
-    
-    Returns a `Promise` of `MicroServiceCallResponse`.
+	Make a `PUT` request to an microservice.
+
+	Returns a `Promise` of `MicroServiceCallResponse`.
 
 * `patch(service, namespace, method, requestData, requestHeaders, endpointParameters)`
 
-    Make a `DELETE` request to an microservice. 
-    
-    Returns a `Promise` of `MicroServiceCallResponse`.
+	Make a `DELETE` request to an microservice.
 
-## Parametres
+	Returns a `Promise` of `MicroServiceCallResponse`.
 
-The Parametres used in the API functions.
+## Parameters
 
-* `apiEndpoint`
-    * type: `String`
-    * The api endpoint returned by the router.
-* `service` 
-    * type: `String`
-    * The name of the microservice.
+The Parameters used in the API functions.
+
+* `service`
+	* type: `String`
+	* The name of the microservice.
 * `namespace`
-    * type: `String`
-    * The namespace of the microservice.
-* `method` 
-    * type: `String`
-    * The method of microservice.
+	* type: `String`
+	* The namespace of the microservice.
+* `method`
+	* type: `String`
+	* The method of microservice.
 * `requestData`
-    * type: `Object`
-    * The data that will send
+	* type: `Object`
+	* The data that will send
 * `requestHeaders`
-    * type: `Object`
-    * The headers of the request
+	* type: `Object`
+	* The headers of the request as key-value
+* `endpointParameters`
+	* type: `Object`
+	* A key-value mapping between endpoint path variables and their replace value
 
 ## Response Object
 
 Response of Microservices
 
 * `MicroServiceCallResponse`:
-    * `StatusCode`: 
-        * type: `Number`
-        * The status code of the response.
-    * `StatusMessage`:
-        * type: `String`
-        * The status message of the response.
-    * `headers`:
-        * type: `Object`
-        * The headers of the response.
-    * `body`:
-        * type: `Object` or `String` (if is "")
-        * The body of the response
+	type: `Object`
+
+	* `statusCode`:
+		* type: `Number`
+		* The status code of the response.
+	* `statusMessage`:
+		* type: `String`
+		* The status message of the response.
+	* `headers`:
+		* type: `Object`
+		* The headers of the response.
+	* `body`:
+		* type: `Object` or `String` (if it's "")
+		* The body of the response
 
 ## Errors
 
 The errors are informed with a `MicroServiceCallError`.
 
 * `MicroServiceCallError`:
-    * `code`: 
-        * type: `Number`
-        * The status code of the error.
-    * `message`:
-        * type: `String`
-        * The message of the error.
-    * `name`: 
-        * type: `String`
-        * The name of the Error
+	* `code`:
+		* type: `Number`
+		* The status code of the error.
+	* `message`:
+		* type: `String`
+		* The message of the error.
+	* `name`:
+		* type: `String`
+		* The name of the Error
+
 ### Codes
 
 The codes are the following:
 
-|Code	|Description						|
+| Code | Description |
 |-----|-----------------------------|
-|1		|Invalid Api Key Path						|
-|2		|Microservice Failed 				|
-|3		|Request Library Errors 	|
+| 1 | Invalid Api Key Path |
+| 2 | Microservice Failed |
+| 3 | Request Library Errors |
 
 ## Usage
 
 ```javascript
 const MicroServiceCall = require('@janiscommerce/microservice-call');
 
-// Instance with "Janis Client"
-const ms = new MicroServiceCall('fizzmodarg');
+const ms = new MicroServiceCall();
 
 // Make a GET request to ms "sac" with the namespace "claim-type" and method "list".
 try {
-    const get_data = await ms.get('sac', 'claim-type', 'list', null, null, {
-        foo: 'value-1',
-        bar: 'value-2'
-    });
-    /*
-        Response example
-        {
-            headers: {}, // The headers of the response.
-            statusCode: 200,
-            statusMessage: 'Ok',
-            body: [{ foo: 'bar' }]
-        }
-    */
+	const response = await ms.get('sac', 'claim-type', 'list', null, null, {
+		foo: 'value-1',
+		bar: 'value-2'
+	});
+	/*
+		Response example
+		{
+			headers: {}, // The headers of the response.
+			statusCode: 200,
+			statusMessage: 'Ok',
+			body: [{ foo: 'bar' }]
+		}
+	*/
 
 } catch(err){
-    /*
-        Error Response Example:
-        {
-            name: 'MicroServiceCallError'
-            message: 'Could not find Microservice',
-            code: 2
-        }
-    */
-    if (err)
-        // Do something
+	/*
+		Error Response Example:
+		{
+			name: 'MicroServiceCallError'
+			message: 'Could not find Microservice',
+			code: 2
+		}
+	*/
+
+	// Do something
 }
 ```
