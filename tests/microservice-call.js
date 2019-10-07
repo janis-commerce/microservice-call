@@ -8,8 +8,8 @@ const Settings = require('@janiscommerce/settings');
 
 const sandbox = sinon.createSandbox();
 
-const MicroServiceCall = require('./../index.js');
-const { MicroServiceCallError } = require('./../lib');
+const MicroServiceCall = require('../');
+const MicroServiceCallError = require('../lib/microservice-call-error');
 
 describe('MicroService call', () => {
 
@@ -18,54 +18,9 @@ describe('MicroService call', () => {
 		schema: 'http://valid-router:3014/api/services/{serviceName}/schema'
 	};
 
-	const validApiKey = 'eFadkj840sdfjkesl';
-
 	let ms;
 	let settingsStub;
 
-	describe('Getters', () => {
-		describe('Get Api Key', () => {
-			beforeEach(() => {
-				ms = new MicroServiceCall();
-				settingsStub = sandbox.stub(Settings, 'get');
-			});
-
-			afterEach(() => {
-				sandbox.restore();
-			});
-
-			it('should return api-key from Settings', () => {
-
-				settingsStub.withArgs(MicroServiceCall.apiKeyField)
-					.returns(validApiKey);
-
-				assert.strictEqual(ms.apiKey, validApiKey);
-
-				sandbox.assert.calledOnce(Settings.get);
-				sandbox.assert.calledWithExactly(Settings.get.getCall(0), MicroServiceCall.apiKeyField);
-			});
-
-			it('should return apiKey from Settings but in a second call should use cache', () => {
-				settingsStub.withArgs(MicroServiceCall.apiKeyField).returns(validApiKey);
-
-				assert.strictEqual(ms.apiKey, validApiKey);
-				assert.strictEqual(ms.apiKey, validApiKey);
-
-				sandbox.assert.calledOnce(Settings.get);
-				sandbox.assert.calledWithExactly(Settings.get.getCall(0), MicroServiceCall.apiKeyField);
-
-			});
-
-			it('should throw Error when Settings for apiKey not exist', () => {
-				settingsStub.withArgs(MicroServiceCall.apiKeyField).returns();
-
-				assert.throws(() => ms.apiKey, { name: 'MicroServiceCallError', code: MicroServiceCallError.codes.INVALID_API_KEY_SETTING });
-				sandbox.assert.calledOnce(Settings.get);
-				sandbox.assert.calledWithExactly(Settings.get.getCall(0), MicroServiceCall.apiKeyField);
-
-			});
-		});
-	});
 	describe('Microservice call module.', () => {
 		beforeEach(() => {
 			ms = new MicroServiceCall();
@@ -88,9 +43,6 @@ describe('MicroService call', () => {
 
 			settingsStub.withArgs(RouterFetcher.routerConfigField)
 				.returns(validRouter);
-
-			settingsStub.withArgs(MicroServiceCall.apiKeyField)
-				.returns(validApiKey);
 
 			const headersResponse = {
 				'content-type': 'application/json'
@@ -122,9 +74,6 @@ describe('MicroService call', () => {
 			settingsStub.withArgs(RouterFetcher.routerConfigField)
 				.returns(validRouter);
 
-			settingsStub.withArgs(MicroServiceCall.apiKeyField)
-				.returns(validApiKey);
-
 			const headersResponse = {
 				'content-type': 'application/json'
 			};
@@ -155,9 +104,6 @@ describe('MicroService call', () => {
 			settingsStub.withArgs(RouterFetcher.routerConfigField)
 				.returns(validRouter);
 
-			settingsStub.withArgs(MicroServiceCall.apiKeyField)
-				.returns(validApiKey);
-
 			sandbox.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
 				endpoint: 'https://localhost/foo/bar',
 				httpMethod: 'get'
@@ -177,9 +123,6 @@ describe('MicroService call', () => {
 
 			settingsStub.withArgs(RouterFetcher.routerConfigField)
 				.returns(validRouter);
-
-			settingsStub.withArgs(MicroServiceCall.apiKeyField)
-				.returns(validApiKey);
 
 			const headersResponse = {
 				'content-type': 'application/json'
@@ -212,9 +155,6 @@ describe('MicroService call', () => {
 			settingsStub.withArgs(RouterFetcher.routerConfigField)
 				.returns(validRouter);
 
-			settingsStub.withArgs(MicroServiceCall.apiKeyField)
-				.returns(validApiKey);
-
 			sandbox.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
 				endpoint: 'endpointunreachable',
 				httpMethod: 'POST'
@@ -232,9 +172,6 @@ describe('MicroService call', () => {
 			settingsStub.withArgs(RouterFetcher.routerConfigField)
 				.returns(validRouter);
 
-			settingsStub.withArgs(MicroServiceCall.apiKeyField)
-				.returns(validApiKey);
-
 			const spy = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
 			await ms.put('a', 'b', 'c', {}, {}, {});
@@ -246,9 +183,6 @@ describe('MicroService call', () => {
 
 			settingsStub.withArgs(RouterFetcher.routerConfigField)
 				.returns(validRouter);
-
-			settingsStub.withArgs(MicroServiceCall.apiKeyField)
-				.returns(validApiKey);
 
 			const spy = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
@@ -262,9 +196,6 @@ describe('MicroService call', () => {
 			settingsStub.withArgs(RouterFetcher.routerConfigField)
 				.returns(validRouter);
 
-			settingsStub.withArgs(MicroServiceCall.apiKeyField)
-				.returns(validApiKey);
-
 			const spy = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
 			await ms.delete('a', 'b', 'c', {}, {}, {});
@@ -276,9 +207,6 @@ describe('MicroService call', () => {
 
 			settingsStub.withArgs(RouterFetcher.routerConfigField)
 				.returns(validRouter);
-
-			settingsStub.withArgs(MicroServiceCall.apiKeyField)
-				.returns(validApiKey);
 
 			const spy = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
@@ -292,9 +220,6 @@ describe('MicroService call', () => {
 			settingsStub.withArgs(RouterFetcher.routerConfigField)
 				.returns(validRouter);
 
-			settingsStub.withArgs(MicroServiceCall.apiKeyField)
-				.returns(validApiKey);
-
 			const callStub = sandbox.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
 
 			await ms.post('a', 'b', 'c', {}, {}, {});
@@ -306,9 +231,6 @@ describe('MicroService call', () => {
 
 			settingsStub.withArgs(RouterFetcher.routerConfigField)
 				.returns(validRouter);
-
-			settingsStub.withArgs(MicroServiceCall.apiKeyField)
-				.returns(validApiKey);
 
 			const getEndpointStub = sandbox.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({}));
 

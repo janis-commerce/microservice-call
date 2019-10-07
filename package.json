@@ -2,7 +2,7 @@
   "name": "@janiscommerce/microservice-call",
   "version": "2.0.0",
   "description": "Allow commincation between services.",
-  "main": "index.js",
+  "main": "lib/microservice-call.js",
   "directories": {
     "test": "test"
   },
@@ -10,7 +10,7 @@
     "lib/"
   ],
   "scripts": {
-    "lint": "eslint index.js lib/ tests/",
+    "lint": "eslint lib/ tests/",
     "test": "export TEST_ENV=true; mocha --exit -R nyan --recursive tests/",
     "watch-test": "export TEST_ENV=true; mocha --exit -R nyan -w --recursive",
     "coverage": "nyc npm test"
@@ -23,7 +23,7 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/fizzmodsrl/microservice-call#readme",
   "dependencies": {
-    "@janiscommerce/router-fetcher": "^2.0.0",
+    "@janiscommerce/router-fetcher": "^2.1.0",
     "@janiscommerce/settings": "^1.0.1",
     "request": "2.85.0"
   },
