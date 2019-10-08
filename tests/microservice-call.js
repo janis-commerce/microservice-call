@@ -156,24 +156,24 @@ describe('MicroService call', () => {
 				{ name: 'MicroServiceCallError', code: MicroServiceCallError.codes.MICROSERVICE_FAILED, message: 'Microservice failed (404): No response body' });
 		});
 
-		it('Should make the request with the correct params', async () => {
+		it('Should make the request with the correct path params', async () => {
 
 			const headersResponse = {
 				'content-type': 'application/json'
 			};
 
 			sinon.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
-				endpoint: 'http://localhost/api/alarms/{alarmName}/state',
+				endpoint: 'http://localhost/api/alarms/{alarmName}/state/{alarmState}',
 				httpMethod: 'POST'
 			}));
 
 			const mockMsResponse = { name: 'foo' };
 
-			nock('http://localhost/api/alarms/foo/state')
+			nock('http://localhost/api/alarms/foo/state/ok')
 				.post('', { foo: 'bar' })
 				.reply(200, mockMsResponse, headersResponse);
 
-			const data = await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
+			const data = await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo', alarmState: 'ok' });
 
 			assert.deepStrictEqual(data, {
 				statusCode: 200,
