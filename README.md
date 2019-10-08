@@ -12,13 +12,13 @@ npm install @janiscommerce/microservice-call
 
 `MicroService Call` uses `Router Fetcher` check its configuration [here](https://www.npmjs.com/package/@janiscommerce/router-fetcher)
 
+## Session
+If an [API Session](https://www.npmjs.com/package/@janiscommerce/api-session) is injected, it will inject `janis-client` and `x-janis-user` headers when possible.
+
+## Authentication
+It will automatically inject the `janis-api-key` and `janis-api-secret` if `JANIS_SERVICE_NAME` and `JANIS_SERVICE_SECRET` environment variables are set.
+
 ## API
-
-* `new MicroServiceCall(serviceName, serviceSecret)`
-
-	MicroServiceCall Constructs.
-
-	Receives optional `serviceName` and `serviceSecret` strings. It they are not passed, it uses `JANIS_SERVICE_NAME` and `JANIS_SERVICE_SECRET` env variables
 
 * `get(service, namespace, method, requestData, requestHeaders, endpointParameters)`
 

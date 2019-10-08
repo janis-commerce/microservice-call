@@ -284,9 +284,9 @@ describe('MicroService call', () => {
 			await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
 		});
 
-		it('Should make the request with the service name and secret from constructor arguments', async () => {
+		it('Should make the request without the janis-client and x-janis-user if an empty session is present', async () => {
 
-			const otherMs = new MicroServiceCall('my-service-name', 'my-secret');
+			ms.session = {};
 
 			const headersResponse = {
 				'content-type': 'application/json'
@@ -302,15 +302,49 @@ describe('MicroService call', () => {
 
 			const reqheaders = {
 				'content-type': 'application/json',
-				'janis-api-key': 'my-service-name',
-				'janis-api-secret': 'my-secret'
+				'janis-api-key': 'dummy-service',
+				'janis-api-secret': 'dummy-secret'
 			};
 
 			nock('http://localhost/api/alarms/foo/state', { reqheaders })
 				.post('', { foo: 'bar' })
 				.reply(200, mockMsResponse, headersResponse);
 
-			await otherMs.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
+			await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
+		});
+
+		it('Should make the request with the janis-client and x-janis-user if session is present', async () => {
+
+			ms.session = {
+				clientCode: 'fizzmod',
+				userId: 'dummy-user-id'
+			};
+
+			const headersResponse = {
+				'content-type': 'application/json'
+			};
+
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').callsFake(() => ({
+				endpoint: 'http://localhost/api/alarms/{alarmName}/state',
+				httpMethod: 'POST'
+			}));
+
+
+			const mockMsResponse = { name: 'foo' };
+
+			const reqheaders = {
+				'content-type': 'application/json',
+				'janis-api-key': 'dummy-service',
+				'janis-api-secret': 'dummy-secret',
+				'janis-client': 'fizzmod',
+				'x-janis-user': 'dummy-user-id'
+			};
+
+			nock('http://localhost/api/alarms/foo/state', { reqheaders })
+				.post('', { foo: 'bar' })
+				.reply(200, mockMsResponse, headersResponse);
+
+			await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
 		});
 	});
 });
