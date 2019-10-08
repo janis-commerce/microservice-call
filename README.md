@@ -108,7 +108,6 @@ The codes are the following:
 
 | Code | Description |
 |-----|-----------------------------|
-| 1 | Invalid Api Key Path |
 | 2 | Microservice Failed |
 | 3 | Request Library Errors |
 
