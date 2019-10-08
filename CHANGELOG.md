@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.0.0] - 2019-10-08
+### Added
+- `janis-client` and `x-janis-user` headers can now be injected using Session
+
+### Changed
+- Now Authentication needs `JANIS_SERVICE_NAME` and `JANIS_SERVICE_SECRET` env vars (**BREAKING CHANGE**)
+- Upgraded `@janiscommerce/router-fetcher` dependency (**BREAKING CHANGE**)
+
+### Fixed
+- Multiple path parameters are now replaced properly
+
+### Removed
+- API Key settings removed
+
 ## [2.0.0] - 2019-08-07
 ### Added
 - Use `@janiscommerce/Settings` dependency
