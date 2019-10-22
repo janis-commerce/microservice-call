@@ -273,7 +273,7 @@ describe('MicroService call', () => {
 
 			const reqheaders = {
 				'content-type': 'application/json',
-				'janis-api-key': 'dummy-service',
+				'janis-api-key': 'service-dummy-service',
 				'janis-api-secret': 'dummy-secret'
 			};
 
@@ -302,7 +302,7 @@ describe('MicroService call', () => {
 
 			const reqheaders = {
 				'content-type': 'application/json',
-				'janis-api-key': 'dummy-service',
+				'janis-api-key': 'service-dummy-service',
 				'janis-api-secret': 'dummy-secret'
 			};
 
@@ -334,7 +334,7 @@ describe('MicroService call', () => {
 
 			const reqheaders = {
 				'content-type': 'application/json',
-				'janis-api-key': 'dummy-service',
+				'janis-api-key': 'service-dummy-service',
 				'janis-api-secret': 'dummy-secret',
 				'janis-client': 'fizzmod',
 				'x-janis-user': 'dummy-user-id'

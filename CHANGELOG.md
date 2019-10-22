@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.0.1] - 2019-10-22
+### Fixed
+- Api key prefixing Service name with `service-`.
+
 ## [3.0.0] - 2019-10-08
 ### Added
 - `janis-client` and `x-janis-user` headers can now be injected using Session
