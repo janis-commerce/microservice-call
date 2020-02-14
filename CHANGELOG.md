@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.1.0] - 2020-02-14
+### Added
+- Added a `call()` method in order to avoid knowing the HTTP Method in advance.
+
+### Changed
+- Deprecated `get()` method and implemented as an alias of `call()`
+- Deprecated `post()` method and implemented as an alias of `call()`
+- Deprecated `put()` method and implemented as an alias of `call()`
+- Deprecated `patch()` method and implemented as an alias of `call()`
+- Deprecated `delete()` method and implemented as an alias of `call()`
+
+### Fixed
+- Fixed documentation for `patch()` method that claimed to make a `DELETE` request.
+
 ## [3.0.1] - 2019-10-22
 ### Fixed
 - Api key prefixing Service name with `service-`.
