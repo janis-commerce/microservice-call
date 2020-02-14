@@ -20,7 +20,15 @@ It will automatically inject the `janis-api-key` and `janis-api-secret` if `JANI
 
 ## API
 
+* `call(service, namespace, method, requestData, requestHeaders, endpointParameters)`
+
+	Make a request to an microservice.
+
+	Returns a `Promise` of `MicroServiceCallResponse`.
+
 * `get(service, namespace, method, requestData, requestHeaders, endpointParameters)`
+
+	**Deprecated!** Use `call()` instead.
 
 	Make a `GET` request to an microservice.
 
@@ -28,17 +36,31 @@ It will automatically inject the `janis-api-key` and `janis-api-secret` if `JANI
 
 * `post(service, namespace, method, requestData, requestHeaders, endpointParameters)`
 
+	**Deprecated!** Use `call()` instead.
+
 	Make a `POST` request to an microservice.
 
 	Returns a `Promise` of `MicroServiceCallResponse`.
 
 * `put(service, namespace, method, requestData, requestHeaders, endpointParameters)`
 
+	**Deprecated!** Use `call()` instead.
+
 	Make a `PUT` request to an microservice.
 
 	Returns a `Promise` of `MicroServiceCallResponse`.
 
 * `patch(service, namespace, method, requestData, requestHeaders, endpointParameters)`
+
+	**Deprecated!** Use `call()` instead.
+
+	Make a `PATCH` request to an microservice.
+
+	Returns a `Promise` of `MicroServiceCallResponse`.
+
+* `delete(service, namespace, method, requestData, requestHeaders, endpointParameters)`
+
+	**Deprecated!** Use `call()` instead.
 
 	Make a `DELETE` request to an microservice.
 

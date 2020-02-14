@@ -169,8 +169,8 @@ describe('MicroService call', () => {
 
 			const mockMsResponse = { name: 'foo' };
 
-			nock('http://localhost/api/alarms/foo/state/ok')
-				.post('', { foo: 'bar' })
+			nock('http://localhost')
+				.post('/api/alarms/foo/state/ok', { foo: 'bar' })
 				.reply(200, mockMsResponse, headersResponse);
 
 			const data = await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo', alarmState: 'ok' });
@@ -201,49 +201,49 @@ describe('MicroService call', () => {
 			});
 		});
 
-		it('Should call private `_call` on put method with correct params', async () => {
+		it('Should call `call` method as an alias on put method with same params', async () => {
 
-			const spy = sinon.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
+			const spy = sinon.stub(MicroServiceCall.prototype, 'call').callsFake(() => null);
 
 			await ms.put('a', 'b', 'c', {}, {}, {});
 
-			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'PUT', {}), '_call method not called properly.');
+			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, {}), 'call method not called properly.');
 		});
 
-		it('Should call private `_call` on patch method with correct params', async () => {
+		it('Should call `call` method as an alias on patch method with same params', async () => {
 
-			const spy = sinon.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
+			const spy = sinon.stub(MicroServiceCall.prototype, 'call').callsFake(() => null);
 
 			await ms.patch('a', 'b', 'c', {}, {}, {});
 
-			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'PATCH', {}), '_call method not called properly.');
+			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, {}), 'call method not called properly.');
 		});
 
-		it('Should call private `_call` on delete method with correct params', async () => {
+		it('Should call `call` method as an alias on delete method with same params', async () => {
 
-			const spy = sinon.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
+			const spy = sinon.stub(MicroServiceCall.prototype, 'call').callsFake(() => null);
 
 			await ms.delete('a', 'b', 'c', {}, {}, {});
 
-			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'DELETE', {}), '_call method not called properly.');
+			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, {}), 'call method not called properly.');
 		});
 
-		it('Should call private `_call` on get method with correct params', async () => {
+		it('Should call `call` method as an alias on get method with same params', async () => {
 
-			const spy = sinon.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
+			const spy = sinon.stub(MicroServiceCall.prototype, 'call').callsFake(() => null);
 
 			await ms.get('a', 'b', 'c', {}, {}, {});
 
-			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, 'GET', {}), '_call method not called properly.');
+			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, {}), 'call method not called properly.');
 		});
 
-		it('Should call private `_call` on post method with correct params', async () => {
+		it('Should call `call` method as an alias on post method with same params', async () => {
 
-			const callStub = sinon.stub(MicroServiceCall.prototype, '_call').callsFake(() => null);
+			const callStub = sinon.stub(MicroServiceCall.prototype, 'call').callsFake(() => null);
 
 			await ms.post('a', 'b', 'c', {}, {}, {});
 
-			assert(callStub.calledWithExactly('a', 'b', 'c', {}, {}, 'POST', {}), '_call method not called properly.');
+			assert(callStub.calledWithExactly('a', 'b', 'c', {}, {}, {}), 'call method not called properly.');
 		});
 
 		it('Should call the router fetcher without "httpMethod"', async () => {
@@ -252,9 +252,9 @@ describe('MicroService call', () => {
 
 			sinon.stub(MicroServiceCall.prototype, '_makeRequest').callsFake(() => null);
 
-			await ms._call('service', 'namespace', 'method', {}, {});
+			await ms.call('service', 'namespace', 'method', {}, {});
 
-			assert(getEndpointStub.calledWithExactly('service', 'namespace', 'method', null));
+			assert(getEndpointStub.calledWithExactly('service', 'namespace', 'method'));
 		});
 
 		it('Should make the request with the service name and secret from env variables if constructor arguments are empty', async () => {
@@ -277,8 +277,8 @@ describe('MicroService call', () => {
 				'janis-api-secret': 'dummy-secret'
 			};
 
-			nock('http://localhost/api/alarms/foo/state', { reqheaders })
-				.post('', { foo: 'bar' })
+			nock('http://localhost', { reqheaders })
+				.post('/api/alarms/foo/state', { foo: 'bar' })
 				.reply(200, mockMsResponse, headersResponse);
 
 			await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
@@ -306,8 +306,8 @@ describe('MicroService call', () => {
 				'janis-api-secret': 'dummy-secret'
 			};
 
-			nock('http://localhost/api/alarms/foo/state', { reqheaders })
-				.post('', { foo: 'bar' })
+			nock('http://localhost', { reqheaders })
+				.post('/api/alarms/foo/state', { foo: 'bar' })
 				.reply(200, mockMsResponse, headersResponse);
 
 			await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
@@ -340,8 +340,8 @@ describe('MicroService call', () => {
 				'x-janis-user': 'dummy-user-id'
 			};
 
-			nock('http://localhost/api/alarms/foo/state', { reqheaders })
-				.post('', { foo: 'bar' })
+			nock('http://localhost', { reqheaders })
+				.post('/api/alarms/foo/state', { foo: 'bar' })
 				.reply(200, mockMsResponse, headersResponse);
 
 			await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
