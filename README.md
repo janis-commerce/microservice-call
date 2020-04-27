@@ -1,12 +1,20 @@
 # Microservice Call
 
+[![Build Status](https://travis-ci.org/janis-commerce/microservice-call.svg?branch=master)](https://travis-ci.org/janis-commerce/microservice-call)
+[![Coverage Status](https://coveralls.io/repos/github/janis-commerce/microservice-call/badge.svg?branch=master)](https://coveralls.io/github/janis-commerce/microservice-call?branch=master)
+
+
 The `MicroService Call` module allows the communication between services.
+
+---
 
 ## Installation
 
 ```
 npm install @janiscommerce/microservice-call
 ```
+
+---
 
 ## Configuration
 
@@ -18,7 +26,11 @@ If an [API Session](https://www.npmjs.com/package/@janiscommerce/api-session) is
 ## Authentication
 It will automatically inject the `janis-api-key` and `janis-api-secret` if `JANIS_SERVICE_NAME` and `JANIS_SERVICE_SECRET` environment variables are set.
 
+---
+
 ## API
+
+
 
 * `call(service, namespace, method, requestData, requestHeaders, endpointParameters)`
 
@@ -26,45 +38,16 @@ It will automatically inject the `janis-api-key` and `janis-api-secret` if `JANI
 
 	Returns a `Promise` of `MicroServiceCallResponse`.
 
-* `get(service, namespace, method, requestData, requestHeaders, endpointParameters)`
+* `list(service, namespace, filters)`
 
-	**Deprecated!** Use `call()` instead.
+	> :warning: **Only available in version in 4.0.0+**  :warning: 
 
-	Make a `GET` request to an microservice.
+	Make a `LIST` request to an microservice by entity.
 
-	Returns a `Promise` of `MicroServiceCallResponse`.
+	Returns a `Promise` of `MicroServiceCallResponse`. In the `body` the full list of entity's objects (no need for pagination)
 
-* `post(service, namespace, method, requestData, requestHeaders, endpointParameters)`
 
-	**Deprecated!** Use `call()` instead.
-
-	Make a `POST` request to an microservice.
-
-	Returns a `Promise` of `MicroServiceCallResponse`.
-
-* `put(service, namespace, method, requestData, requestHeaders, endpointParameters)`
-
-	**Deprecated!** Use `call()` instead.
-
-	Make a `PUT` request to an microservice.
-
-	Returns a `Promise` of `MicroServiceCallResponse`.
-
-* `patch(service, namespace, method, requestData, requestHeaders, endpointParameters)`
-
-	**Deprecated!** Use `call()` instead.
-
-	Make a `PATCH` request to an microservice.
-
-	Returns a `Promise` of `MicroServiceCallResponse`.
-
-* `delete(service, namespace, method, requestData, requestHeaders, endpointParameters)`
-
-	**Deprecated!** Use `call()` instead.
-
-	Make a `DELETE` request to an microservice.
-
-	Returns a `Promise` of `MicroServiceCallResponse`.
+> :warning: **After version 4.0.0, `get`, `post`, `put`, `path`, `delete` are removed**  :warning: 
 
 ## Parameters
 
@@ -88,6 +71,13 @@ The Parameters used in the API functions.
 * `endpointParameters`
 	* type: `Object`
 	* A key-value mapping between endpoint path variables and their replace value
+* `filters`
+	* type: `Object`
+	* filters and/or orders available in destination Entity's Service
+	* example:
+	```js
+	{ filters: { id: 'some-id', name:'some-name' }}
+	```
 
 ## Response Object
 
@@ -106,7 +96,7 @@ Response of Microservices
 		* type: `Object`
 		* The headers of the response.
 	* `body`:
-		* type: `Object` or `String` (if it's "")
+		* type: `Object`, `Array` or `String` (if it's "")
 		* The body of the response
 
 ## Errors
@@ -140,11 +130,10 @@ const MicroServiceCall = require('@janiscommerce/microservice-call');
 
 const ms = new MicroServiceCall();
 
-// Make a GET request to ms "sac" with the namespace "claim-type" and method "list".
+// Make a GET request to ms "sac" with the namespace "claim-type" and method "get".
 try {
-	const response = await ms.get('sac', 'claim-type', 'list', null, null, {
-		foo: 'value-1',
-		bar: 'value-2'
+	const response = await ms.call('sac', 'claim-type', 'get', null, null, {
+		foo: 'bar'
 	});
 	/*
 		Response example
@@ -152,7 +141,59 @@ try {
 			headers: {}, // The headers of the response.
 			statusCode: 200,
 			statusMessage: 'Ok',
-			body: [{ foo: 'bar' }]
+			body: {
+				foo: 'bar',
+				id: 'foo-id',
+				other: 100
+			}
+		}
+	*/
+
+} catch(err){
+	/*
+		Error Response Example:
+		{
+			name: 'MicroServiceCallError'
+			message: 'Could not find Microservice',
+			code: 2
+		}
+	*/
+
+	// Do something
+}
+
+
+// Make a LIST request to ms "catalog" with the namespace "brand" with status filter
+try {
+	const filters = {
+		status: 'active'
+	};
+
+	const response = await ms.list('catalog', 'brand', { filters });
+	/*
+		Response example
+		{
+			headers: {}, // The headers of the response.
+			statusCode: 200,
+			statusMessage: 'Ok',
+			body: [
+				{
+					id: 'brand-1',
+					referenceId: 'reference-id-1',
+					name: 'Brand One'
+				},
+				{
+					id: 'brand-2',
+					referenceId: 'reference-id-2',
+					name: 'Brand Two'
+				},
+				// 1997 objects ...
+				{
+					id: 'brand-2000',
+					referenceId: 'reference-id-2000',
+					name: 'Brand Two Thousands'
+				}
+			]
 		}
 	*/
 
