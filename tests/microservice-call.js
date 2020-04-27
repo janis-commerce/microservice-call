@@ -33,7 +33,7 @@ describe('MicroService call', () => {
 		});
 
 		it('Should return a RouterFetcherError when no Settings', async () => {
-			await assert.rejects(() => ms.get('any', 'any', 'any'), { name: 'RouterFetcherError' });
+			await assert.rejects(() => ms.call('any', 'any', 'any'), { name: 'RouterFetcherError' });
 		});
 
 		it('Should return the correct response object on successful calls', async () => {
@@ -53,7 +53,7 @@ describe('MicroService call', () => {
 				.get('/foo/bar')
 				.reply(200, mockMsResponse, headersResponse);
 
-			const data = await ms.get('sac', 'claim-type', 'list');
+			const data = await ms.call('sac', 'claim-type', 'list');
 
 			assert.deepStrictEqual(data, {
 				statusCode: 200,
@@ -80,7 +80,7 @@ describe('MicroService call', () => {
 				.post('/foo/bar', { foo: 'bar' })
 				.reply(200, mockMsResponse, headersResponse);
 
-			const data = await ms.post('sac', 'claim-type', 'list', { foo: 'bar' });
+			const data = await ms.call('sac', 'claim-type', 'list', { foo: 'bar' });
 
 			assert.deepStrictEqual(data, {
 				statusCode: 200,
@@ -103,7 +103,7 @@ describe('MicroService call', () => {
 					message: 'Something failed'
 				});
 
-			await assert.rejects(() => ms.get('good', 'good', 'good'),
+			await assert.rejects(() => ms.call('good', 'good', 'good'),
 				{ name: 'MicroServiceCallError', code: MicroServiceCallError.codes.MICROSERVICE_FAILED });
 		});
 
@@ -120,7 +120,7 @@ describe('MicroService call', () => {
 					message: 'Something failed'
 				});
 
-			await assert.rejects(() => ms.get('good', 'good', 'good'),
+			await assert.rejects(() => ms.call('good', 'good', 'good'),
 				{ name: 'MicroServiceCallError', code: MicroServiceCallError.codes.MICROSERVICE_FAILED, message: 'Microservice failed (404): Something failed' });
 		});
 
@@ -137,7 +137,7 @@ describe('MicroService call', () => {
 					foo: 'bar'
 				});
 
-			await assert.rejects(() => ms.get('good', 'good', 'good'),
+			await assert.rejects(() => ms.call('good', 'good', 'good'),
 				{ name: 'MicroServiceCallError', code: MicroServiceCallError.codes.MICROSERVICE_FAILED, message: 'Microservice failed (404): {"foo":"bar"}' });
 		});
 
@@ -152,7 +152,7 @@ describe('MicroService call', () => {
 				.get('/foo/bar')
 				.reply(404);
 
-			await assert.rejects(() => ms.get('good', 'good', 'good'),
+			await assert.rejects(() => ms.call('good', 'good', 'good'),
 				{ name: 'MicroServiceCallError', code: MicroServiceCallError.codes.MICROSERVICE_FAILED, message: 'Microservice failed (404): No response body' });
 		});
 
@@ -173,7 +173,7 @@ describe('MicroService call', () => {
 				.post('/api/alarms/foo/state/ok', { foo: 'bar' })
 				.reply(200, mockMsResponse, headersResponse);
 
-			const data = await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo', alarmState: 'ok' });
+			const data = await ms.call('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo', alarmState: 'ok' });
 
 			assert.deepStrictEqual(data, {
 				statusCode: 200,
@@ -194,56 +194,11 @@ describe('MicroService call', () => {
 				.get('/foo/bar')
 				.replyWithError('Some lib error');
 
-			await assert.rejects(ms.post('false', 'false', 'false'), {
+			await assert.rejects(ms.call('false', 'false', 'false'), {
 				name: 'MicroServiceCallError',
 				code: MicroServiceCallError.codes.REQUEST_LIB_ERROR,
 				message: 'Some lib error'
 			});
-		});
-
-		it('Should call `call` method as an alias on put method with same params', async () => {
-
-			const spy = sinon.stub(MicroServiceCall.prototype, 'call').callsFake(() => null);
-
-			await ms.put('a', 'b', 'c', {}, {}, {});
-
-			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, {}), 'call method not called properly.');
-		});
-
-		it('Should call `call` method as an alias on patch method with same params', async () => {
-
-			const spy = sinon.stub(MicroServiceCall.prototype, 'call').callsFake(() => null);
-
-			await ms.patch('a', 'b', 'c', {}, {}, {});
-
-			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, {}), 'call method not called properly.');
-		});
-
-		it('Should call `call` method as an alias on delete method with same params', async () => {
-
-			const spy = sinon.stub(MicroServiceCall.prototype, 'call').callsFake(() => null);
-
-			await ms.delete('a', 'b', 'c', {}, {}, {});
-
-			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, {}), 'call method not called properly.');
-		});
-
-		it('Should call `call` method as an alias on get method with same params', async () => {
-
-			const spy = sinon.stub(MicroServiceCall.prototype, 'call').callsFake(() => null);
-
-			await ms.get('a', 'b', 'c', {}, {}, {});
-
-			assert(spy.calledWithExactly('a', 'b', 'c', {}, {}, {}), 'call method not called properly.');
-		});
-
-		it('Should call `call` method as an alias on post method with same params', async () => {
-
-			const callStub = sinon.stub(MicroServiceCall.prototype, 'call').callsFake(() => null);
-
-			await ms.post('a', 'b', 'c', {}, {}, {});
-
-			assert(callStub.calledWithExactly('a', 'b', 'c', {}, {}, {}), 'call method not called properly.');
 		});
 
 		it('Should call the router fetcher without "httpMethod"', async () => {
@@ -281,7 +236,7 @@ describe('MicroService call', () => {
 				.post('/api/alarms/foo/state', { foo: 'bar' })
 				.reply(200, mockMsResponse, headersResponse);
 
-			await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
+			await ms.call('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
 		});
 
 		it('Should make the request without the janis-client and x-janis-user if an empty session is present', async () => {
@@ -310,7 +265,7 @@ describe('MicroService call', () => {
 				.post('/api/alarms/foo/state', { foo: 'bar' })
 				.reply(200, mockMsResponse, headersResponse);
 
-			await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
+			await ms.call('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
 		});
 
 		it('Should make the request with the janis-client and x-janis-user if session is present', async () => {
@@ -344,7 +299,7 @@ describe('MicroService call', () => {
 				.post('/api/alarms/foo/state', { foo: 'bar' })
 				.reply(200, mockMsResponse, headersResponse);
 
-			await ms.post('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
+			await ms.call('sac', 'claim-type', 'list', { foo: 'bar' }, null, { alarmName: 'foo' });
 		});
 	});
 });
