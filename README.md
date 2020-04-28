@@ -30,7 +30,11 @@ It will automatically inject the `janis-api-key` and `janis-api-secret` if `JANI
 
 ## API
 
+> :warning: **After version 4.0.0, `get`, `post`, `put`, `path`, `delete` are *REMOVED***  :warning:
 
+### No Safe Mode
+
+These methods **WILL THROW AN ERROR** when response `statusCode` is `400+`.
 
 * `call(service, namespace, method, requestData, requestHeaders, endpointParameters)`
 
@@ -40,14 +44,42 @@ It will automatically inject the `janis-api-key` and `janis-api-secret` if `JANI
 
 * `list(service, namespace, filters)`
 
-	> :warning: **Only available in version in 4.0.0+**  :warning: 
+	> :warning: **Only available after version 4.0.0**  :warning:
 
 	Make a `LIST` request to an microservice by entity.
 
-	Returns a `Promise` of `MicroServiceCallResponse`. In the `body` the full list of entity's objects (no need for pagination)
+	Returns a `Promise` of `MicroServiceCallResponse`, the `body` contains the full list of entity's objects (no need for pagination)
 
+### Safe Mode
 
-> :warning: **After version 4.0.0, `get`, `post`, `put`, `path`, `delete` are removed**  :warning: 
+> :warning: **Only available after version 4.0.0**  :warning:
+
+These methods **WILL NOT THROW AN ERROR** when response `statusCode` is `400+`.
+
+* `safeCall(service, namespace, method, requestData, requestHeaders, endpointParameters)`
+
+	Make a request to an microservice.
+
+	Returns a `Promise` of `MicroServiceCallResponse`.
+
+* `safeList(service, namespace, filters)`
+
+	Make a `LIST` request to an microservice by entity.
+
+	Returns a `Promise` of `MicroServiceCallResponse`, the `body` contains the full list of entity's objects (no need for pagination)
+
+### Extra
+
+> :warning: **Only available after version 4.0.0**  :warning:
+
+* `shouldRetry(response)`
+
+	Indicates if should re-try the call. It is usefull for Event-Listeners API to avoid unnecessary retries.
+
+	Params: `response` `{MicroServiceCallResponse | MicroServiceCallError}`
+
+	Returns a `Boolean`.
+
 
 ## Parameters
 
@@ -113,6 +145,9 @@ The errors are informed with a `MicroServiceCallError`.
 	* `name`:
 		* type: `String`
 		* The name of the Error
+	* `statusCode`:
+		* type: `Number`
+		* The status code of the response.
 
 ### Codes
 
@@ -123,7 +158,13 @@ The codes are the following:
 | 2 | Microservice Failed |
 | 3 | Request Library Errors |
 
+---
+
 ## Usage
+
+### No Safe Mode
+
+#### CALL
 
 ```javascript
 const MicroServiceCall = require('@janiscommerce/microservice-call');
@@ -149,19 +190,30 @@ try {
 		}
 	*/
 
-} catch(err){
+} catch(error){
 	/*
 		Error Response Example:
 		{
 			name: 'MicroServiceCallError'
-			message: 'Could not find Microservice',
-			code: 2
+			message: 'Could not found claim',
+			code: 2,
+			statusCode: 404
 		}
 	*/
 
+	if(ms.shouldRetry(error)) // false
+		throw new Error('Should Retry')
+
 	// Do something
 }
+```
 
+#### LIST
+
+```javascript
+const MicroServiceCall = require('@janiscommerce/microservice-call');
+
+const ms = new MicroServiceCall();
 
 // Make a LIST request to ms "catalog" with the namespace "brand" with status filter
 try {
@@ -202,11 +254,117 @@ try {
 		Error Response Example:
 		{
 			name: 'MicroServiceCallError'
-			message: 'Could not find Microservice',
-			code: 2
+			message: 'Database Fails',
+			code: 2,
+			statusCode: 500
 		}
 	*/
 
+	if(ms.shouldRetry(error)) // true
+		throw new Error('Service Call Fails. Should Retry')
+
 	// Do something
 }
+```
+
+### Safe Mode
+
+#### CALL
+
+```javascript
+const MicroServiceCall = require('@janiscommerce/microservice-call');
+
+const ms = new MicroServiceCall();
+
+// Make a GET request to ms "pricing" with the namespace "base-price" and method "get".
+
+const response = await ms.safeCall('pricing', 'base-price', 'get', null, null, {
+	foo: 'bar'
+});
+/*
+	Response example
+	{
+		headers: {}, // The headers of the response.
+		statusCode: 504,
+		statusMessage: null,
+		body: {
+			message: 'Timeout'
+		}
+	}
+*/
+
+if(ms.shouldRetry(response)) // true
+	throw new Error('Should Retry')
+
+// Do something
+
+
+// Make a POST request to ms "wms" with the namespace "stock" and method "post".
+
+const response = await ms.safeCall('wms', 'stock', 'post', { name: 'stock-1', quantity: 1 });
+/*
+	Response example
+	{
+		headers: {}, // The headers of the response.
+		statusCode: 200,
+			statusMessage: 'Ok',
+			body: {
+				id: 'stock-id-1'
+			}
+	}
+*/
+
+if(ms.shouldRetry(response)) // false
+	throw new Error('Should Retry')
+
+// Do something
+
+```
+
+#### LIST
+
+```javascript
+const MicroServiceCall = require('@janiscommerce/microservice-call');
+
+const ms = new MicroServiceCall();
+
+// Make a LIST request to ms "commerce" with the namespace "seller" with status filter
+
+const filters = {
+	status: 'active'
+};
+
+const response = await ms.list('commerce', 'seller', { filters });
+/*
+	Response example
+	{
+		headers: {}, // The headers of the response.
+		statusCode: 200,
+		statusMessage: 'Ok',
+		body: [
+			{
+				id: 'seller-1',
+				referenceId: 'reference-id-1',
+				name: 'Seller One'
+			},
+			{
+				id: 'seller-2',
+				referenceId: 'reference-id-2',
+				name: 'Seller Two'
+			},
+			// 1997 objects ...
+			{
+				id: 'seller-2000',
+				referenceId: 'reference-id-2000',
+				name: 'Seller Two Thousands'
+			}
+		]
+	}
+*/
+
+if(ms.shouldRetry(error)) // false
+	throw new Error('Service Call Fails. Should Retry')
+
+// Do something
+
 ```
