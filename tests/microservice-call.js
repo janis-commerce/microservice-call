@@ -750,7 +750,7 @@ describe('MicroService call', () => {
 
 		it('Should passed the correct params and headers', async () => {
 
-			sinon.stub(MicroServiceCall.prototype, 'call')
+			sinon.stub(MicroServiceCall.prototype, 'safeCall')
 				.returns({
 					statusCode: 200,
 					headers: { 'x-janis-total': 0 },
@@ -767,7 +767,7 @@ describe('MicroService call', () => {
 				body: []
 			});
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
+			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
 				'sample-service',
 				'sample-entity',
 				'list',
@@ -778,7 +778,7 @@ describe('MicroService call', () => {
 
 		it('Should passed the correct params and headers with filters', async () => {
 
-			sinon.stub(MicroServiceCall.prototype, 'call')
+			sinon.stub(MicroServiceCall.prototype, 'safeCall')
 				.returns({
 					statusCode: 200,
 					headers: { 'x-janis-total': 0 },
@@ -795,7 +795,7 @@ describe('MicroService call', () => {
 				body: []
 			});
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
+			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
 				'sample-service',
 				'sample-entity',
 				'list',
@@ -806,7 +806,7 @@ describe('MicroService call', () => {
 
 		it('Should make several calls to get full list of objects', async () => {
 
-			const msCallStub = sinon.stub(MicroServiceCall.prototype, 'call');
+			const msCallStub = sinon.stub(MicroServiceCall.prototype, 'safeCall');
 
 			msCallStub.onCall(0).returns({
 				statusCode: 200,
@@ -840,9 +840,9 @@ describe('MicroService call', () => {
 				]
 			});
 
-			sinon.assert.calledThrice(MicroServiceCall.prototype.call);
+			sinon.assert.calledThrice(MicroServiceCall.prototype.safeCall);
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
+			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
 				'sample-service',
 				'sample-entity',
 				'list',
@@ -850,7 +850,7 @@ describe('MicroService call', () => {
 				{ 'x-janis-page': 1 }
 			);
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
+			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
 				'sample-service',
 				'sample-entity',
 				'list',
@@ -858,7 +858,7 @@ describe('MicroService call', () => {
 				{ 'x-janis-page': 2 }
 			);
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
+			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
 				'sample-service',
 				'sample-entity',
 				'list',
@@ -869,7 +869,7 @@ describe('MicroService call', () => {
 
 		it('Should not rejects if Services response statusCode 400+', async () => {
 
-			sinon.stub(MicroServiceCall.prototype, 'call')
+			sinon.stub(MicroServiceCall.prototype, 'safeCall')
 				.returns({
 					statusCode: 500,
 					headers: {},
@@ -884,7 +884,7 @@ describe('MicroService call', () => {
 				body: { message: 'Service Fails' }
 			});
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
+			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
 				'sample-service',
 				'sample-entity',
 				'list',
@@ -895,7 +895,7 @@ describe('MicroService call', () => {
 
 		it('Should not rejects if Services response statusCode 400+ after several calls', async () => {
 
-			const msCallStub = sinon.stub(MicroServiceCall.prototype, 'call');
+			const msCallStub = sinon.stub(MicroServiceCall.prototype, 'safeCall');
 
 			msCallStub.onCall(0).returns({
 				statusCode: 200,
@@ -917,9 +917,9 @@ describe('MicroService call', () => {
 				body: { message: 'Service Fails' }
 			});
 
-			sinon.assert.calledTwice(MicroServiceCall.prototype.call);
+			sinon.assert.calledTwice(MicroServiceCall.prototype.safeCall);
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
+			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
 				'sample-service',
 				'sample-entity',
 				'list',
@@ -927,7 +927,7 @@ describe('MicroService call', () => {
 				{ 'x-janis-page': 1 }
 			);
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
+			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
 				'sample-service',
 				'sample-entity',
 				'list',
