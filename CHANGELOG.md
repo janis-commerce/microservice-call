@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- `safeCall` method
+- `safeCall()` method
 - `list()` method
 - `safeList()` method
 - `statusCode` field to `MicroServiceCallError`
