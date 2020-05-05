@@ -1,7 +1,7 @@
 {
   "name": "@janiscommerce/microservice-call",
-  "version": "3.1.0",
-  "description": "Allow commincation between services.",
+  "version": "4.0.0",
+  "description": "Allows communication between services.",
   "main": "lib/microservice-call.js",
   "directories": {
     "test": "test"
@@ -17,11 +17,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://bitbucket.org/fizzmodsrl/microservice-call.git"
+    "url": "https://github.com/janis-commerce/microservice-call.git"
   },
   "author": "Janis",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/fizzmodsrl/microservice-call#readme",
+  "homepage": "https://github.com/janis-commerce/microservice-call#readme",
   "dependencies": {
     "@janiscommerce/router-fetcher": "^2.1.0",
     "request": "^2.88.2"
