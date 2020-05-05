@@ -11,6 +11,7 @@
   ],
   "scripts": {
     "lint": "eslint lib/ tests/",
+    "test-ci": "nyc --reporter=html --reporter=text mocha --recursive tests/",
     "test": "export TEST_ENV=true; mocha --exit -R nyan --recursive tests/",
     "watch-test": "export TEST_ENV=true; mocha --exit -R nyan -w --recursive",
     "coverage": "nyc npm test"

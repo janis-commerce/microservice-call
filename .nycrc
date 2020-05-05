@@ -2,7 +2,8 @@
   "exclude": [
     "tests/",
     ".eslintrc.js",
-    "coverage"
+    "coverage",
+    ".travis.yml"
   ],
   "extension": [
     ".js"
