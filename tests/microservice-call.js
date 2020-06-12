@@ -585,7 +585,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 }
+				{ 'x-janis-page': 1 },
+				null
 			);
 		});
 
@@ -613,7 +614,37 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				{ filters: { status: 'active' } },
-				{ 'x-janis-page': 1 }
+				{ 'x-janis-page': 1 },
+				null
+			);
+		});
+
+		it('Should passed the correct params and headers with endpointParamaters', async () => {
+
+			sinon.stub(MicroServiceCall.prototype, 'call')
+				.returns({
+					statusCode: 200,
+					headers: { 'x-janis-total': 0 },
+					body: []
+				});
+
+			const data = await ms.list('sample-service', 'sample-entity', null, { id: 'some-id' });
+
+			assert.deepEqual(data, {
+				statusCode: 200,
+				headers: {
+					'x-janis-total': 0
+				},
+				body: []
+			});
+
+			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
+				'sample-service',
+				'sample-entity',
+				'list',
+				null,
+				{ 'x-janis-page': 1 },
+				{ id: 'some-id' }
 			);
 		});
 
@@ -660,7 +691,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 }
+				{ 'x-janis-page': 1 },
+				null
 			);
 
 			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
@@ -668,7 +700,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 2 }
+				{ 'x-janis-page': 2 },
+				null
 			);
 
 			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
@@ -676,7 +709,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 3 }
+				{ 'x-janis-page': 3 },
+				null
 			);
 		});
 
@@ -700,7 +734,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 }
+				{ 'x-janis-page': 1 },
+				null
 			);
 		});
 
@@ -733,7 +768,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 }
+				{ 'x-janis-page': 1 },
+				null
 			);
 
 			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
@@ -741,7 +777,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 2 }
+				{ 'x-janis-page': 2 },
+				null
 			);
 		});
 	});
@@ -772,7 +809,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 }
+				{ 'x-janis-page': 1 },
+				null
 			);
 		});
 
@@ -800,7 +838,37 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				{ filters: { status: 'active' } },
-				{ 'x-janis-page': 1 }
+				{ 'x-janis-page': 1 },
+				null
+			);
+		});
+
+		it('Should passed the correct params and headers with endpoint-parameters', async () => {
+
+			sinon.stub(MicroServiceCall.prototype, 'safeCall')
+				.returns({
+					statusCode: 200,
+					headers: { 'x-janis-total': 0 },
+					body: []
+				});
+
+			const data = await ms.safeList('sample-service', 'sample-entity', null, { id: 'some-id' });
+
+			assert.deepEqual(data, {
+				statusCode: 200,
+				headers: {
+					'x-janis-total': 0
+				},
+				body: []
+			});
+
+			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
+				'sample-service',
+				'sample-entity',
+				'list',
+				null,
+				{ 'x-janis-page': 1 },
+				{ id: 'some-id' }
 			);
 		});
 
@@ -847,7 +915,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 }
+				{ 'x-janis-page': 1 },
+				null
 			);
 
 			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
@@ -855,7 +924,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 2 }
+				{ 'x-janis-page': 2 },
+				null
 			);
 
 			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
@@ -863,7 +933,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 3 }
+				{ 'x-janis-page': 3 },
+				null
 			);
 		});
 
@@ -889,7 +960,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 }
+				{ 'x-janis-page': 1 },
+				null
 			);
 		});
 
@@ -924,7 +996,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 }
+				{ 'x-janis-page': 1 },
+				null
 			);
 
 			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
@@ -932,7 +1005,8 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 2 }
+				{ 'x-janis-page': 2 },
+				null
 			);
 		});
 	});
