@@ -42,7 +42,7 @@ These methods **WILL THROW AN ERROR** when response `statusCode` is `400+`.
 
 	Returns a `Promise` of `MicroServiceCallResponse`.
 
-* `list(service, namespace, filters)`
+* `list(service, namespace, filters, endpointParameters)`
 
 	> :warning: **Only available after version 4.0.0**  :warning:
 
@@ -62,7 +62,7 @@ These methods **WILL NOT THROW AN ERROR** when response `statusCode` is `400+`.
 
 	Returns a `Promise` of `MicroServiceCallResponse`.
 
-* `safeList(service, namespace, filters)`
+* `safeList(service, namespace, filters, endpointParameters)`
 
 	Make a `LIST` request to an microservice by entity.
 
