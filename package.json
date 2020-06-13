@@ -1,6 +1,6 @@
 {
   "name": "@janiscommerce/microservice-call",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Allows communication between services.",
   "main": "lib/microservice-call.js",
   "directories": {
@@ -30,11 +30,11 @@
   "devDependencies": {
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.2.0",
-    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-import": "^2.21.2",
     "husky": "^2.7.0",
     "mocha": "^5.2.0",
-    "nock": "^11.8.2",
-    "nyc": "^14.1.0",
-    "sinon": "^7.4.1"
+    "nock": "^11.9.1",
+    "nyc": "^15.1.0",
+    "sinon": "^7.5.0"
   }
 }
