@@ -586,7 +586,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 1 },
-				null
+				undefined
 			);
 		});
 
@@ -615,7 +615,7 @@ describe('MicroService call', () => {
 				'list',
 				{ filters: { status: 'active' } },
 				{ 'x-janis-page': 1 },
-				null
+				undefined
 			);
 		});
 
@@ -692,7 +692,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 1 },
-				null
+				undefined
 			);
 
 			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
@@ -701,7 +701,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 2 },
-				null
+				undefined
 			);
 
 			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
@@ -710,7 +710,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 3 },
-				null
+				undefined
 			);
 		});
 
@@ -735,7 +735,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 1 },
-				null
+				undefined
 			);
 		});
 
@@ -769,7 +769,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 1 },
-				null
+				undefined
 			);
 
 			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
@@ -778,7 +778,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 2 },
-				null
+				undefined
 			);
 		});
 	});
@@ -810,7 +810,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 1 },
-				null
+				undefined
 			);
 		});
 
@@ -839,7 +839,7 @@ describe('MicroService call', () => {
 				'list',
 				{ filters: { status: 'active' } },
 				{ 'x-janis-page': 1 },
-				null
+				undefined
 			);
 		});
 
@@ -916,7 +916,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 1 },
-				null
+				undefined
 			);
 
 			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
@@ -925,7 +925,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 2 },
-				null
+				undefined
 			);
 
 			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
@@ -934,7 +934,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 3 },
-				null
+				undefined
 			);
 		});
 
@@ -961,7 +961,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 1 },
-				null
+				undefined
 			);
 		});
 
@@ -997,7 +997,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 1 },
-				null
+				undefined
 			);
 
 			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
@@ -1006,7 +1006,7 @@ describe('MicroService call', () => {
 				'list',
 				null,
 				{ 'x-janis-page': 2 },
-				null
+				undefined
 			);
 		});
 	});
