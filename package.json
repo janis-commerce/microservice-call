@@ -10,11 +10,11 @@
     "lib/"
   ],
   "scripts": {
-    "lint": "eslint lib/ tests/",
-    "test-ci": "nyc --reporter=html --reporter=text mocha --recursive tests/",
     "test": "export TEST_ENV=true; mocha --exit -R nyan --recursive tests/",
-    "watch-test": "export TEST_ENV=true; mocha --exit -R nyan -w --recursive",
-    "coverage": "nyc npm test"
+    "test-ci": "nyc --reporter=lcov --reporter=text-summary mocha --exit --recursive tests/",
+    "watch-test": "export TEST_ENV=true; mocha --exit -R nyan -w --recursive tests/",
+    "coverage": "nyc npm test",
+    "lint": "eslint lib/ tests/"
   },
   "repository": {
     "type": "git",
@@ -28,13 +28,13 @@
     "request": "^2.88.2"
   },
   "devDependencies": {
-    "eslint": "^5.16.0",
+    "eslint": "^7.15.0",
     "eslint-config-airbnb-base": "^13.2.0",
-    "eslint-plugin-import": "^2.21.2",
-    "husky": "^2.7.0",
-    "mocha": "^5.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "husky": "^4.3.6",
+    "mocha": "^8.2.1",
     "nock": "^11.9.1",
     "nyc": "^15.1.0",
-    "sinon": "^9.0.2"
+    "sinon": "^9.2.2"
   }
 }

@@ -29,8 +29,8 @@ describe('MicroService call', () => {
 
 	afterEach(() => {
 		sinon.restore();
+		MicroServiceCall._cache = {}; // eslint-disable-line
 	});
-
 
 	describe('Call', () => {
 
@@ -1011,7 +1011,7 @@ describe('MicroService call', () => {
 		});
 	});
 
-	describe('Should Try', () => {
+	describe('Should Retry', () => {
 
 		it('Should return true if no status code is found', () => {
 
@@ -1075,5 +1075,83 @@ describe('MicroService call', () => {
 				body: { message: 'Invalid client' }
 			}));
 		});
+	});
+
+	describe('Cache endpoints', () => {
+
+		it('Should cache the getEndpoint response after 2 times calling with same parameters', async () => {
+
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').returns({
+				endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
+				httpMethod: 'POST'
+			});
+
+			const mockMsResponse = { id: 'foo-id' };
+
+			const headersResponse = {
+				'content-type': 'application/json'
+			};
+
+			nock('https://sample-service.janis-test.in')
+				.post('/api/sample-entity', { foo: 'bar' })
+				.reply(200, mockMsResponse, headersResponse);
+
+			const data = await ms.call('sample-service', 'sample-entity', 'create', { foo: 'bar' });
+
+			assert.deepStrictEqual(data, {
+				statusCode: 200,
+				statusMessage: null,
+				body: mockMsResponse,
+				headers: headersResponse
+			});
+
+			nock('https://sample-service.janis-test.in')
+				.post('/api/sample-entity', { foo: 'bar' })
+				.reply(200, mockMsResponse, headersResponse);
+
+			const data2 = await ms.call('sample-service', 'sample-entity', 'create', { foo: 'bar' });
+
+			assert.deepStrictEqual(data, data2);
+
+			sinon.assert.calledOnceWithExactly(RouterFetcher.prototype.getEndpoint, 'sample-service', 'sample-entity', 'create');
+		});
+
+		it('Shouldn\'t cache the getEndpoint response after 2 times calling with different parameters', async () => {
+
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').returns({
+				endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
+				httpMethod: 'POST'
+			});
+
+			const mockMsResponse = { id: 'foo-id' };
+
+			const headersResponse = {
+				'content-type': 'application/json'
+			};
+
+			nock('https://sample-service.janis-test.in')
+				.post('/api/sample-entity', { foo: 'bar' })
+				.reply(200, mockMsResponse, headersResponse);
+
+			const data = await ms.call('sample-service', 'sample-entity', 'create', { foo: 'bar' });
+
+			assert.deepStrictEqual(data, {
+				statusCode: 200,
+				statusMessage: null,
+				body: mockMsResponse,
+				headers: headersResponse
+			});
+
+			nock('https://sample-service.janis-test.in')
+				.post('/api/sample-entity', { foo: 'bar' })
+				.reply(200, mockMsResponse, headersResponse);
+
+			const data2 = await ms.call('sample-service', 'sample-entity', 'update', { foo: 'bar' });
+
+			assert.deepStrictEqual(data, data2);
+
+			sinon.assert.calledTwice(RouterFetcher.prototype.getEndpoint);
+		});
+
 	});
 });

@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [4.2.0] - 2020-12-15
+### Added
+- Internal cache for `RouterFetcher` responses
+- GitHub Actions for build, coverage and publish workflows
+
 ## [4.1.2] - 2020-06-19
 ### Fixed
 - Reinstalled
@@ -66,7 +71,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [2.0.0] - 2019-08-07
 ### Added
-- Use `@janiscommerce/Settings` dependency
+- Use `@janiscommerce/settings` dependency
 
 ### Changed
 - `api-key` config comes from `path/to/root/[MS_PATH]/config/.janiscommercerc.json`
@@ -79,10 +84,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - *"lib/"* folder into package.json files
 
 ### Changed
-- `MicroService-Call` constructs, don't need parametres anymore
+- `MicroService-Call` constructs, don't need parameters anymore
 - `MicroServiceCall-Error` changed response format.
 - Update *Unit Tests*
 - Changed modules files folder into *"lib/"*
-
-### Removed
-- `Router-Fetcher` moved to an independent package.
