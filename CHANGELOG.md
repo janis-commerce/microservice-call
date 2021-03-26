@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [4.3.0] - 2021-03-26
+### Added
+- Fetch secret with **AWS Secrets Manager** using `@janiscommerce/aws-secrets-manager`.
+
 ## [4.2.0] - 2020-12-15
 ### Added
 - Internal cache for `RouterFetcher` responses

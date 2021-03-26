@@ -24,13 +24,17 @@ npm install @janiscommerce/microservice-call
 If an [API Session](https://www.npmjs.com/package/@janiscommerce/api-session) is injected, it will inject `janis-client` and `x-janis-user` headers when possible.
 
 ## Authentication
-It will automatically inject the `janis-api-key` and `janis-api-secret` if `JANIS_SERVICE_NAME` and `JANIS_SERVICE_SECRET` environment variables are set.
+It will automatically inject the `janis-api-key` and `janis-api-secret` headers if `JANIS_SERVICE_NAME` and `JANIS_SERVICE_SECRET` environment variables are set.
+
+### 🔑 Secrets 
+In case the `JANIS_SERVICE_SECRET` variable is not found, the package will get the **secret** using the *JANIS_SERVICE_NAME* environment variable.  
+If the **secret** is found it will be used in the `janis-api-secret` header.
+
+The Secrets are stored in [AWS Secrets Manager](https://aws.amazon.com/secrets-manager) and obtained with the package [@janiscommerce/aws-secrets-manager](https://www.npmjs.com/package/@janiscommerce/aws-secrets-manager) 
 
 ---
 
 ## API
-
-> :warning: **After version 4.0.0, `get`, `post`, `put`, `path`, `delete` are *REMOVED***  :warning:
 
 ### No Safe Mode
 
@@ -44,15 +48,15 @@ These methods **WILL THROW AN ERROR** when response `statusCode` is `400+`.
 
 * `list(service, namespace, filters, endpointParameters)`
 
-	> :warning: **Only available after version 4.0.0**  :warning:
-
+	_Since 4.0.0_
+	
 	Make a `LIST` request to an microservice by entity.
 
 	Returns a `Promise` of `MicroServiceCallResponse`, the `body` contains the full list of entity's objects (no need for pagination)
 
 ### Safe Mode
 
-> :warning: **Only available after version 4.0.0**  :warning:
+_Since 4.0.0_
 
 These methods **WILL NOT THROW AN ERROR** when response `statusCode` is `400+`.
 
@@ -70,7 +74,7 @@ These methods **WILL NOT THROW AN ERROR** when response `statusCode` is `400+`.
 
 ### Extra
 
-> :warning: **Only available after version 4.0.0**  :warning:
+_Since 4.0.0_
 
 * `shouldRetry(response)`
 
@@ -80,6 +84,7 @@ These methods **WILL NOT THROW AN ERROR** when response `statusCode` is `400+`.
 
 	Returns a `Boolean`.
 
+> :warning: **After version 4.0.0, `get`, `post`, `put`, `path`, `delete` are *REMOVED***  :warning:  
 
 ## Parameters
 
@@ -157,6 +162,7 @@ The codes are the following:
 |-----|-----------------------------|
 | 2 | Microservice Failed |
 | 3 | Request Library Errors |
+| 4 | Janis Secret is missing |
 
 ---
 
@@ -164,7 +170,10 @@ The codes are the following:
 
 ### No Safe Mode
 
-#### CALL
+This calls will reject after receive a StatusCode greater or equal than **400**.  
+
+<details>
+	<summary>Making a regular call using the method <code>call()</code>.</summary>
 
 ```javascript
 const MicroServiceCall = require('@janiscommerce/microservice-call');
@@ -207,8 +216,10 @@ try {
 	// Do something
 }
 ```
+</details>
 
-#### LIST
+<details>
+	<summary>Making a regular list call using the method <code>list()</code>.</summary>
 
 ```javascript
 const MicroServiceCall = require('@janiscommerce/microservice-call');
@@ -267,9 +278,14 @@ try {
 }
 ```
 
+</details>
+
 ### Safe Mode
 
-#### CALL
+This calls will **not** reject after receive a StatusCode greater or equal than **400**.  
+
+<details>
+	<summary>Making a "safe" call using the method <code>safeCall()</code>.</summary>
 
 ```javascript
 const MicroServiceCall = require('@janiscommerce/microservice-call');
@@ -321,7 +337,11 @@ if(ms.shouldRetry(response)) // false
 
 ```
 
-#### LIST
+</details>
+
+<details>
+	<summary>Making a "safe" list call using the method <code>safeList()</code>.</summary>
+
 
 ```javascript
 const MicroServiceCall = require('@janiscommerce/microservice-call');
@@ -334,7 +354,7 @@ const filters = {
 	status: 'active'
 };
 
-const response = await ms.list('commerce', 'seller', { filters });
+const response = await ms.safeList('commerce', 'seller', { filters });
 /*
 	Response example
 	{
@@ -368,3 +388,4 @@ if(ms.shouldRetry(error)) // false
 // Do something
 
 ```
+</details>
