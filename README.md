@@ -27,7 +27,7 @@ If an [API Session](https://www.npmjs.com/package/@janiscommerce/api-session) is
 It will automatically inject the `janis-api-key` and `janis-api-secret` headers if `JANIS_SERVICE_NAME` and `JANIS_SERVICE_SECRET` environment variables are set.
 
 ### 🔑 Secrets 
-In case the `JANIS_SERVICE_SECRET` variable is not found, the package will get the **secret** using the *JANIS_SERVICE_NAME* environment variable.  
+In case the `JANIS_SERVICE_SECRET` variable is not found, the package will get the **secret** using the `JANIS_SERVICE_NAME` environment variable.  
 If the **secret** is found it will be used in the `janis-api-secret` header.
 
 The Secrets are stored in [AWS Secrets Manager](https://aws.amazon.com/secrets-manager) and obtained with the package [@janiscommerce/aws-secrets-manager](https://www.npmjs.com/package/@janiscommerce/aws-secrets-manager) 
@@ -78,7 +78,7 @@ _Since 4.0.0_
 
 * `shouldRetry(response)`
 
-	Indicates if should re-try the call. It is usefull for Event-Listeners API to avoid unnecessary retries.
+	Indicates if should re-try the call. It is useful for Event-Listeners API to avoid unnecessary retries.
 
 	Params: `response` `{MicroServiceCallResponse | MicroServiceCallError}`
 
@@ -118,7 +118,7 @@ The Parameters used in the API functions.
 
 ## Response Object
 
-Response of Microservices
+Response of Microservice
 
 * `MicroServiceCallResponse`:
 	type: `Object`
@@ -169,8 +169,6 @@ The codes are the following:
 ## Usage
 
 ### No Safe Mode
-
-This calls will reject after receive a StatusCode greater or equal than **400**.  
 
 <details>
 	<summary>Making a regular call using the method <code>call()</code>.</summary>
@@ -281,8 +279,6 @@ try {
 </details>
 
 ### Safe Mode
-
-This calls will **not** reject after receive a StatusCode greater or equal than **400**.  
 
 <details>
 	<summary>Making a "safe" call using the method <code>safeCall()</code>.</summary>
