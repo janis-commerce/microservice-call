@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [4.3.1] - 2021-04-14
+### Added
+- Avoid fetching secret for `local` environment.
+
 ## [4.3.0] - 2021-03-26
 ### Added
 - Fetch secret with **AWS Secrets Manager** using `@janiscommerce/aws-secrets-manager`.

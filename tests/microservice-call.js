@@ -14,31 +14,28 @@ const {
 	secretThrows,
 	secretGetValueRejects,
 	assertSecretsGet,
-	secretsNotCalled,
-	setJanisSecret
+	secretsNotCalled
 } = require('./helpers/secret-fetcher.js');
 
 describe('MicroService call', () => {
 
 	const oldEnv = { ...process.env };
 
-	before(() => {
-		process.env.JANIS_SERVICE_NAME = 'dummy-service';
-	});
-
-	after(() => {
-		process.env = oldEnv;
-	});
-
 	let ms;
 
 	beforeEach(() => {
+
+		process.env.JANIS_SERVICE_NAME = 'dummy-service';
+
 		ms = new MicroServiceCall();
+
 		stubGetSecret(sinon);
-		setJanisSecret('insecure-secret');
 	});
 
 	afterEach(() => {
+
+		process.env = { ...oldEnv };
+
 		sinon.restore();
 		MicroServiceCall._cache = {}; // eslint-disable-line
 	});
@@ -64,6 +61,10 @@ describe('MicroService call', () => {
 	};
 
 	describe('Call', () => {
+
+		beforeEach(() => {
+			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
+		});
 
 		context('When request fails', () => {
 
@@ -319,6 +320,10 @@ describe('MicroService call', () => {
 
 	describe('SafeCall', () => {
 
+		beforeEach(() => {
+			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
+		});
+
 		context('When request fails', () => {
 
 			it('Should return a RouterFetcherError when no Settings', async () => {
@@ -563,6 +568,10 @@ describe('MicroService call', () => {
 
 	describe('List', () => {
 
+		beforeEach(() => {
+			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
+		});
+
 		it('Should passed the correct params and headers', async () => {
 
 			sinon.stub(MicroServiceCall.prototype, 'call')
@@ -786,6 +795,10 @@ describe('MicroService call', () => {
 	});
 
 	describe('SafeList', () => {
+
+		beforeEach(() => {
+			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
+		});
 
 		it('Should passed the correct params and headers', async () => {
 
@@ -1015,6 +1028,10 @@ describe('MicroService call', () => {
 
 	describe('Should Retry', () => {
 
+		beforeEach(() => {
+			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
+		});
+
 		it('Should return true if no status code is found', () => {
 
 			assert(ms.shouldRetry());
@@ -1080,6 +1097,10 @@ describe('MicroService call', () => {
 	});
 
 	describe('Cache endpoints', () => {
+
+		beforeEach(() => {
+			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
+		});
 
 		it('Should cache the getEndpoint response after 2 times calling with same parameters', async () => {
 
@@ -1166,10 +1187,6 @@ describe('MicroService call', () => {
 		const apiSecret = 'ultra-secure-secret';
 
 		const mockMsResponse = [{ name: 'foo' }];
-
-		beforeEach(() => {
-			setJanisSecret();
-		});
 
 		context('When secret was found', () => {
 
@@ -1309,5 +1326,50 @@ describe('MicroService call', () => {
 				assertGetEndpoint('sample-service', 'sample-entity', 'list');
 			});
 		});
+	});
+
+	describe('Avoid fetch secret on local environment', () => {
+
+		beforeEach(() => {
+			process.env.JANIS_ENV = 'local';
+		});
+
+		it('Should return the correct response object on successful calls adding the secret', async () => {
+
+			const headersResponse = {
+				'content-type': 'application/json'
+			};
+
+			const mockMsResponse = [{ name: 'foo' }];
+
+			getEndpointStub({
+				endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
+				httpMethod: 'get'
+			});
+
+			const reqheaders = {
+				'content-type': 'application/json',
+				'janis-api-key': 'service-dummy-service',
+				'janis-api-secret': 'local-environment-secret'
+			};
+
+			nock('https://sample-service.janis-test.in', { reqheaders })
+				.get('/api/sample-entity')
+				.reply(200, mockMsResponse, headersResponse);
+
+			const data = await ms.call('sample-service', 'sample-entity', 'list');
+
+			assert.deepStrictEqual(data, {
+				statusCode: 200,
+				statusMessage: null,
+				body: mockMsResponse,
+				headers: headersResponse
+			});
+
+			assertGetEndpoint('sample-service', 'sample-entity', 'list');
+
+			secretsNotCalled(sinon);
+		});
+
 	});
 });

@@ -57,19 +57,11 @@ const secretsNotCalled = sandbox => {
 	sandbox.assert.notCalled(SecretHandler.prototype.getValue);
 };
 
-const setJanisSecret = secret => {
-	if(secret)
-		process.env.JANIS_SERVICE_SECRET = secret;
-	else
-		delete process.env.JANIS_SERVICE_SECRET;
-};
-
 module.exports = {
 	stubGetSecret,
 	secretThrows,
 	secretGetValueResolves,
 	secretGetValueRejects,
 	assertSecretsGet,
-	secretsNotCalled,
-	setJanisSecret
+	secretsNotCalled
 };
