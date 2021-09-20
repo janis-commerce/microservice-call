@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [4.3.2] - 2021-09-20
+### Added
+- Added parameter `pageSize` for methods `list()` and `safeList()`
+
+### Changed
+- Updated dependencies
+
 ## [4.3.1] - 2021-04-14
 ### Added
 - Avoid fetching secret for `local` environment.

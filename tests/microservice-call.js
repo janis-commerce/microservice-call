@@ -596,7 +596,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
 				undefined
 			);
 		});
@@ -625,7 +625,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				{ filters: { status: 'active' } },
-				{ 'x-janis-page': 1 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
 				undefined
 			);
 		});
@@ -654,8 +654,37 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
 				{ id: 'some-id' }
+			);
+		});
+
+		it('Should passed the correct params and headers with custom pageSize', async () => {
+
+			sinon.stub(MicroServiceCall.prototype, 'call')
+				.returns({
+					statusCode: 200,
+					headers: { 'x-janis-total': 0 },
+					body: []
+				});
+
+			const data = await ms.list('sample-service', 'sample-entity', null, null, 800);
+
+			assert.deepEqual(data, {
+				statusCode: 200,
+				headers: {
+					'x-janis-total': 0
+				},
+				body: []
+			});
+
+			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
+				'sample-service',
+				'sample-entity',
+				'list',
+				null,
+				{ 'x-janis-page': 1, 'x-janis-page-size': 800 },
+				null
 			);
 		});
 
@@ -702,7 +731,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
 				undefined
 			);
 
@@ -711,7 +740,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 2 },
+				{ 'x-janis-page': 2, 'x-janis-page-size': 60 },
 				undefined
 			);
 
@@ -720,7 +749,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 3 },
+				{ 'x-janis-page': 3, 'x-janis-page-size': 60 },
 				undefined
 			);
 		});
@@ -745,7 +774,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
 				undefined
 			);
 		});
@@ -779,7 +808,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
 				undefined
 			);
 
@@ -788,7 +817,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 2 },
+				{ 'x-janis-page': 2, 'x-janis-page-size': 60 },
 				undefined
 			);
 		});
@@ -824,7 +853,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
 				undefined
 			);
 		});
@@ -853,7 +882,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				{ filters: { status: 'active' } },
-				{ 'x-janis-page': 1 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
 				undefined
 			);
 		});
@@ -882,7 +911,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
 				{ id: 'some-id' }
 			);
 		});
@@ -930,7 +959,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
 				undefined
 			);
 
@@ -939,7 +968,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 2 },
+				{ 'x-janis-page': 2, 'x-janis-page-size': 60 },
 				undefined
 			);
 
@@ -948,7 +977,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 3 },
+				{ 'x-janis-page': 3, 'x-janis-page-size': 60 },
 				undefined
 			);
 		});
@@ -975,7 +1004,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
 				undefined
 			);
 		});
@@ -1011,7 +1040,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 1 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
 				undefined
 			);
 
@@ -1020,7 +1049,7 @@ describe('MicroService call', () => {
 				'sample-entity',
 				'list',
 				null,
-				{ 'x-janis-page': 2 },
+				{ 'x-janis-page': 2, 'x-janis-page-size': 60 },
 				undefined
 			);
 		});

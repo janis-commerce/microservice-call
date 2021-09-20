@@ -26,11 +26,11 @@ If an [API Session](https://www.npmjs.com/package/@janiscommerce/api-session) is
 ## Authentication
 It will automatically inject the `janis-api-key` and `janis-api-secret` headers if `JANIS_SERVICE_NAME` and `JANIS_SERVICE_SECRET` environment variables are set.
 
-### 🔑 Secrets 
-In case the `JANIS_SERVICE_SECRET` variable is not found, the package will get the **secret** using the `JANIS_SERVICE_NAME` environment variable.  
+### 🔑 Secrets
+In case the `JANIS_SERVICE_SECRET` variable is not found, the package will get the **secret** using the `JANIS_SERVICE_NAME` environment variable.
 If the **secret** is found it will be used in the `janis-api-secret` header.
 
-The Secrets are stored in [AWS Secrets Manager](https://aws.amazon.com/secrets-manager) and obtained with the package [@janiscommerce/aws-secrets-manager](https://www.npmjs.com/package/@janiscommerce/aws-secrets-manager) 
+The Secrets are stored in [AWS Secrets Manager](https://aws.amazon.com/secrets-manager) and obtained with the package [@janiscommerce/aws-secrets-manager](https://www.npmjs.com/package/@janiscommerce/aws-secrets-manager)
 
 ---
 
@@ -46,10 +46,10 @@ These methods **WILL THROW AN ERROR** when response `statusCode` is `400+`.
 
 	Returns a `Promise` of `MicroServiceCallResponse`.
 
-* `list(service, namespace, filters, endpointParameters)`
+* `list(service, namespace, requestData, endpointParameters, pageSize)`
 
 	_Since 4.0.0_
-	
+
 	Make a `LIST` request to an microservice by entity.
 
 	Returns a `Promise` of `MicroServiceCallResponse`, the `body` contains the full list of entity's objects (no need for pagination)
@@ -66,7 +66,7 @@ These methods **WILL NOT THROW AN ERROR** when response `statusCode` is `400+`.
 
 	Returns a `Promise` of `MicroServiceCallResponse`.
 
-* `safeList(service, namespace, filters, endpointParameters)`
+* `safeList(service, namespace, requestData, endpointParameters, pageSize)`
 
 	Make a `LIST` request to an microservice by entity.
 
@@ -84,7 +84,7 @@ _Since 4.0.0_
 
 	Returns a `Boolean`.
 
-> :warning: **After version 4.0.0, `get`, `post`, `put`, `path`, `delete` are *REMOVED***  :warning:  
+> :warning: **After version 4.0.0, `get`, `post`, `put`, `path`, `delete` are *REMOVED***  :warning:
 
 ## Parameters
 
@@ -101,20 +101,23 @@ The Parameters used in the API functions.
 	* The method of microservice.
 * `requestData`
 	* type: `Object`
-	* The data that will send
+	* The data that will send.
 * `requestHeaders`
 	* type: `Object`
-	* The headers of the request as key-value
+	* The headers of the request as key-value.
 * `endpointParameters`
 	* type: `Object`
-	* A key-value mapping between endpoint path variables and their replace value
+	* A key-value mapping between endpoint path variables and their replace value.
 * `filters`
 	* type: `Object`
-	* filters and/or orders available in destination Entity's Service
+	* filters and/or orders available in destination Entity's Service.
 	* example:
 	```js
 	{ filters: { id: 'some-id', name:'some-name' }}
 	```
+* `pageSize`. _Since 4.3.2_
+	* type: `Number`
+	* The pageSize will be use to add the `x-janis-page-size` to the ApiList. The default value is `60`.
 
 ## Response Object
 
