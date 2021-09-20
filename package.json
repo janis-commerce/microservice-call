@@ -1,6 +1,6 @@
 {
   "name": "@janiscommerce/microservice-call",
-  "version": "4.3.1",
+  "version": "4.3.2",
   "description": "Allows communication between services.",
   "main": "lib/microservice-call.js",
   "directories": {
