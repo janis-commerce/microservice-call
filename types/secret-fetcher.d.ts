@@ -12,6 +12,7 @@ declare class SecretFetcher {
     static get localSecretValue(): string;
     /**
      * Request the secret value to AwsSecretManager
+     * @throws {MicroServiceCallError} If the secretValue is missing
      */
     static fetch(): Promise<void>;
     /**
