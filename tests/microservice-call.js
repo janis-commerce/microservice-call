@@ -372,7 +372,7 @@ describe('MicroService call', () => {
 				assert.deepStrictEqual(data, {
 					statusCode: 504,
 					statusMessage: null,
-					body: undefined,
+					body: '',
 					headers: {}
 				});
 			});
