@@ -4,7 +4,6 @@ const nock = require('nock');
 const sinon = require('sinon');
 const assert = require('assert');
 const RouterFetcher = require('@janiscommerce/router-fetcher');
-
 const MicroServiceCall = require('../lib/microservice-call');
 const MicroServiceCallError = require('../lib/microservice-call-error');
 
@@ -37,6 +36,7 @@ describe('MicroService call', () => {
 		process.env = { ...oldEnv };
 
 		sinon.restore();
+
 		MicroServiceCall._cache = {}; // eslint-disable-line
 	});
 
@@ -86,7 +86,6 @@ describe('MicroService call', () => {
 					});
 
 				await msCallRejects(404);
-
 			});
 
 			it('Should use response body \'message\' prop as error message if present', async () => {
@@ -373,7 +372,7 @@ describe('MicroService call', () => {
 				assert.deepStrictEqual(data, {
 					statusCode: 504,
 					statusMessage: null,
-					body: undefined,
+					body: '',
 					headers: {}
 				});
 			});
@@ -1399,6 +1398,5 @@ describe('MicroService call', () => {
 
 			secretsNotCalled(sinon);
 		});
-
 	});
 });
