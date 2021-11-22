@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [4.3.4] - 2021-11-22
+### Fixed
+- Querystring serialization fix for objects and arrays
+
 ## [4.3.3] - 2021-11-19
 ### Added
 - TS typings
