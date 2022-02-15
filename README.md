@@ -4,11 +4,11 @@
 [![Coverage Status](https://coveralls.io/repos/github/janis-commerce/microservice-call/badge.svg?branch=master)](https://coveralls.io/github/janis-commerce/microservice-call?branch=master)
 [![npm version](https://badge.fury.io/js/%40janiscommerce%2Fmicroservice-call.svg)](https://www.npmjs.com/package/@janiscommerce/microservice-call)
 
-The `MicroService Call` module allows the communication between services.
+The `MsCall` module allows the communication between services using :package: [lambda](https://www.npmjs.com/package/@janiscommerce/lambda).
 
 ---
 
-## Installation
+## :inbox_tray: Installation
 
 ```
 npm install @janiscommerce/microservice-call
@@ -16,33 +16,26 @@ npm install @janiscommerce/microservice-call
 
 ---
 
-## Configuration
+## :hammer_and_wrench: Configuration
 
-`MicroService Call` uses `Router Fetcher` check its configuration [here](https://www.npmjs.com/package/@janiscommerce/router-fetcher)
+`MsCall` uses the **Discovery Service** to find Endpoints using `service`, `namespace` and `method`.
+
+It's required to configure the setting `discoveryHost` using [settings](https://www.npmjs.com/package/@janiscommerce/settings).
 
 ## Session
-If an [API Session](https://www.npmjs.com/package/@janiscommerce/api-session) is injected, it will inject `janis-client` and `x-janis-user` headers when possible.
-
-## Authentication
-It will automatically inject the `janis-api-key` and `janis-api-secret` headers if `JANIS_SERVICE_NAME` and `JANIS_SERVICE_SECRET` environment variables are set.
-
-### 🔑 Secrets
-In case the `JANIS_SERVICE_SECRET` variable is not found, the package will get the **secret** using the `JANIS_SERVICE_NAME` environment variable.
-If the **secret** is found it will be used in the `janis-api-secret` header.
-
-The Secrets are stored in [AWS Secrets Manager](https://aws.amazon.com/secrets-manager) and obtained with the package [@janiscommerce/aws-secrets-manager](https://www.npmjs.com/package/@janiscommerce/aws-secrets-manager)
+If an [api-session](https://www.npmjs.com/package/@janiscommerce/api-session) is injected, it will send the information to the lambda function.
 
 ---
 
 ## API
 
-### No Safe Mode
+### Regular Mode :warning:
 
 These methods **WILL THROW AN ERROR** when response `statusCode` is `400+`.
 
 * `call(service, namespace, method, requestData, requestHeaders, endpointParameters)`
 
-	Make a request to an microservice.
+	Make a request to a microservice.
 
 	Returns a `Promise` of `MicroServiceCallResponse`.
 
@@ -50,7 +43,7 @@ These methods **WILL THROW AN ERROR** when response `statusCode` is `400+`.
 
 	_Since 4.0.0_
 
-	Make a `LIST` request to an microservice by entity.
+	Make a `LIST` request to a microservice by entity.
 
 	Returns a `Promise` of `MicroServiceCallResponse`, the `body` contains the full list of entity's objects (no need for pagination)
 
@@ -62,21 +55,19 @@ These methods **WILL NOT THROW AN ERROR** when response `statusCode` is `400+`.
 
 * `safeCall(service, namespace, method, requestData, requestHeaders, endpointParameters)`
 
-	Make a request to an microservice.
+	Make a request to a microservice.
 
 	Returns a `Promise` of `MicroServiceCallResponse`.
 
 * `safeList(service, namespace, requestData, endpointParameters, pageSize)`
 
-	Make a `LIST` request to an microservice by entity.
+	Make a `LIST` request to a microservice by entity.
 
 	Returns a `Promise` of `MicroServiceCallResponse`, the `body` contains the full list of entity's objects (no need for pagination)
 
 ### Extra
 
-_Since 4.0.0_
-
-* `shouldRetry(response)`
+* `shouldRetry(response)` _Since 4.0.0_
 
 	Indicates if should re-try the call. It is useful for Event-Listeners API to avoid unnecessary retries.
 
@@ -84,7 +75,11 @@ _Since 4.0.0_
 
 	Returns a `Boolean`.
 
-> :warning: **After version 4.0.0, `get`, `post`, `put`, `path`, `delete` are *REMOVED***  :warning:
+* `errorCodes()` _Since 5.0.0_
+
+	Retrieves the MicroserviceCallError codes.
+
+	Returns an `Object` with
 
 ## Parameters
 
@@ -95,10 +90,10 @@ The Parameters used in the API functions.
 	* The name of the microservice.
 * `namespace`
 	* type: `String`
-	* The namespace of the microservice.
+	* The namespace or entity.
 * `method`
 	* type: `String`
-	* The method of microservice.
+	* The method for the namespace or entity.
 * `requestData`
 	* type: `Object`
 	* The data that will send.
@@ -113,11 +108,11 @@ The Parameters used in the API functions.
 	* filters and/or orders available in destination Entity's Service.
 	* example:
 	```js
-	{ filters: { id: 'some-id', name:'some-name' }}
+		{ filters: { id: 'some-id', name:'some-name' }}
 	```
 * `pageSize`. _Since 4.3.2_
 	* type: `Number`
-	* The pageSize will be use to add the `x-janis-page-size` to the ApiList. The default value is `60`.
+	* The page size will be use to add the `x-janis-page-size` header to the **ApiList**. The default value is `1000`.
 
 ## Response Object
 
@@ -139,7 +134,7 @@ Response of Microservice
 		* type: `Object`, `Array` or `String` (if it's "")
 		* The body of the response
 
-## Errors
+## :warning: Errors
 
 The errors are informed with a `MicroServiceCallError`.
 
@@ -161,15 +156,16 @@ The errors are informed with a `MicroServiceCallError`.
 
 The codes are the following:
 
-| Code | Description |
-|-----|-----------------------------|
-| 2 | Microservice Failed |
-| 3 | Request Library Errors |
-| 4 | Janis Secret is missing |
+| Code | Code Number | Description |
+|------|-------------|-------------|
+| `INVALID_DISCOVERY_HOST_SETTING` | 1 | Missing setting `discoveryHost` |
+| `ENDPOINT_NOT_FOUND` | 2 | Endpoint not found in Discovery Service |
+| `ENDPOINT_REQUEST_FAILED` | 3 | The request to Discovery Service failed |
+| `MICROSERVICE_FAILED` | 4 | The request to Service failed |
 
 ---
 
-## Usage
+## :page_with_curl: Usage
 
 ### No Safe Mode
 
@@ -177,9 +173,9 @@ The codes are the following:
 	<summary>Making a regular call using the method <code>call()</code>.</summary>
 
 ```javascript
-const MicroServiceCall = require('@janiscommerce/microservice-call');
+const MsCall = require('@janiscommerce/microservice-call');
 
-const ms = new MicroServiceCall();
+const ms = new MsCall();
 
 // Make a GET request to ms "sac" with the namespace "claim-type" and method "get".
 try {
@@ -200,13 +196,13 @@ try {
 		}
 	*/
 
-} catch(error){
+} catch(error) {
 	/*
 		Error Response Example:
 		{
 			name: 'MicroServiceCallError'
 			message: 'Could not found claim',
-			code: 2,
+			code: 4,
 			statusCode: 404
 		}
 	*/
@@ -223,9 +219,9 @@ try {
 	<summary>Making a regular list call using the method <code>list()</code>.</summary>
 
 ```javascript
-const MicroServiceCall = require('@janiscommerce/microservice-call');
+const MsCall = require('@janiscommerce/microservice-call');
 
-const ms = new MicroServiceCall();
+const ms = new MsCall();
 
 // Make a LIST request to ms "catalog" with the namespace "brand" with status filter
 try {
@@ -261,13 +257,13 @@ try {
 		}
 	*/
 
-} catch(err){
+} catch(err) {
 	/*
 		Error Response Example:
 		{
 			name: 'MicroServiceCallError'
 			message: 'Database Fails',
-			code: 2,
+			code: 4,
 			statusCode: 500
 		}
 	*/
@@ -287,9 +283,9 @@ try {
 	<summary>Making a "safe" call using the method <code>safeCall()</code>.</summary>
 
 ```javascript
-const MicroServiceCall = require('@janiscommerce/microservice-call');
+const MsCall = require('@janiscommerce/microservice-call');
 
-const ms = new MicroServiceCall();
+const ms = new MsCall();
 
 // Make a GET request to ms "pricing" with the namespace "base-price" and method "get".
 
@@ -343,9 +339,9 @@ if(ms.shouldRetry(response)) // false
 
 
 ```javascript
-const MicroServiceCall = require('@janiscommerce/microservice-call');
+const MsCall = require('@janiscommerce/microservice-call');
 
-const ms = new MicroServiceCall();
+const ms = new MsCall();
 
 // Make a LIST request to ms "commerce" with the namespace "seller" with status filter
 
