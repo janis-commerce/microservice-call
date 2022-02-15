@@ -23,7 +23,14 @@ npm install @janiscommerce/microservice-call
 It's required to configure the setting `discoveryHost` using [settings](https://www.npmjs.com/package/@janiscommerce/settings).
 
 ## Session
+
 If an [api-session](https://www.npmjs.com/package/@janiscommerce/api-session) is injected, it will send the information to the lambda function.
+
+---
+
+## Migration guide to v5
+
+If you are looking for a migration guide from v4 to v5, here it is: [migration-from-v4-to-v5](https://github.com/janis-commerce/microservice-call/tree/master/docs/migration-from-v4-to-v5.md)
 
 ---
 
@@ -75,11 +82,17 @@ These methods **WILL NOT THROW AN ERROR** when response `statusCode` is `400+`.
 
 	Returns a `Boolean`.
 
-* `errorCodes()` _Since 5.0.0_
+* `static get errorCodes()` _Since 5.0.0_
 
 	Retrieves the MicroserviceCallError codes.
 
-	Returns an `Object` with
+	Returns an `Object` with error codes, see Errors section bellow.
+
+	```js
+		const MsCall = require('@janiscommerce/microservice-call');
+
+		console.log(MsCall.errorCodes.ENDPOINT_NOT_FOUND); // expected output: 2
+	```
 
 ## Parameters
 
