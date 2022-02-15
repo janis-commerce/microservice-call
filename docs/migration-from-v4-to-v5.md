@@ -50,6 +50,24 @@ try {
 }
 ```
 
+### Error codes changes
+
+In `v4` the :package: [router-fetcher](https://www.npmjs.com/package/@janiscommerce/router-fetcher) throws the following errors, in `v5` are thrown by `microservice-call`.
+
+| v4 | v5 | Description |
+|----|----|-------------|
+| **RouterFetcherError** `INVALID_ROUTER_CONFIG_SETTING` **3** | `INVALID_DISCOVERY_HOST_SETTING` **1** | The setting for Router/Discovery is missing |
+| **RouterFetcherError** `ENDPOINT_NOT_FOUND` **4** | `ENDPOINT_NOT_FOUND` **2** | Endpoint not found in Router/Discovery service |
+| **RouterFetcherError** `AXIOS_LIB_ERROR` **5** | `ENDPOINT_REQUEST_FAILED` **3** | The request to the Router/Discovery service failed |
+
+In `v4` the following errors were thrown, in `v5` are replaced or not be used anymore
+
+| v4 | v5 | Description |
+|----|----|-------------|
+| `MICROSERVICE_FAILED` **2** | `MICROSERVICE_FAILED` **4** | The service failed |
+| `REQUEST_LIB_ERROR` **3** | **Not exists anymore** | Request library errors |
+| `JANIS_SECRET_MISSING` **4** | **Not exists anymore** | The Janis Secret is missing |
+
 ### Changed the default pageSize :warning:
 
 Since lambda function are now used, the default page size is now 1000 for the methods `list()` and `safeList()`.
