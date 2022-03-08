@@ -2,7 +2,7 @@
   "name": "@janiscommerce/microservice-call",
   "version": "4.3.4",
   "description": "Allows communication between services.",
-  "main": "lib/microservice-call.js",
+  "main": "lib/ms-call.js",
   "directories": {
     "test": "test"
   },
@@ -17,7 +17,7 @@
     "coverage": "nyc npm test",
     "lint": "eslint lib/ tests/",
     "prepare": "husky install",
-    "build-types": "tsc lib/microservice-call.js --declaration --allowJs --emitDeclarationOnly --outDir types"
+    "build-types": "tsc lib/ms-call.js --declaration --allowJs --emitDeclarationOnly --outDir types"
   },
   "repository": {
     "type": "git",

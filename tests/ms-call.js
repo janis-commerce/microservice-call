@@ -12,6 +12,7 @@ const { Invoker } = require('@janiscommerce/lambda');
 const MsCall = require('../lib/ms-call');
 const EndpointFetcher = require('../lib/endpoint-fetcher');
 const MsCallError = require('../lib/ms-call-error');
+const MicroServiceCallError = require('../lib/ms-call-error');
 
 describe.only('MsCall', () => {
 
@@ -97,10 +98,59 @@ describe.only('MsCall', () => {
 			});
 		});
 
+		it('Should invoke lambda function using session', async () => {
+
+			const apiResponse = { statusCode: 200 };
+
+			sinon.stub(Invoker, 'apiCall')
+				.resolves(apiResponse);
+
+			const msCall = new MsCall();
+
+			const sessionData = { clientCode: 'fizzmod' };
+
+			msCall.session = sessionData;
+
+			const response = await msCall.call('catalog', 'product', 'publish', {
+				name: 'coke'
+			}, {
+				someHeader: 123
+			});
+
+			assert.deepStrictEqual(apiResponse, response);
+
+			sinon.assert.calledOnceWithExactly(Invoker.apiCall, 'catalog', lambdaName, {
+				requestPath: '/product',
+				path: {},
+				method: 'POST',
+				body: { name: 'coke' },
+				headers: { someHeader: 123 },
+				authorizer: { janisAuth: sessionData }
+			});
+
+			assertEndpointGet();
+		});
+
 		it('Should reject when lambda responses with a 4xx statusCode', async () => {
 
 			sinon.stub(Invoker, 'apiCall')
 				.resolves({ statusCode: 400, body: { message: 'missing name field for publish a product' } });
+
+			const msCall = new MsCall();
+
+			await assert.rejects(msCall.call('catalog', 'product', 'publish'), {
+				code: MsCallError.codes.MICROSERVICE_FAILED
+			});
+
+			sinon.assert.calledOnce(Invoker.apiCall);
+
+			assertEndpointGet();
+		});
+
+		it('Should reject when lambda responses with a 4xx statusCode without message', async () => {
+
+			sinon.stub(Invoker, 'apiCall')
+				.resolves({ statusCode: 400, body: {} });
 
 			const msCall = new MsCall();
 
@@ -306,6 +356,140 @@ describe.only('MsCall', () => {
 			});
 
 			assertEndpointGet();
+		});
+
+	});
+
+	describe('Using safeList()', () => {
+
+		beforeEach(() => {
+
+			endpointGetResolves({
+				path: '/product',
+				method: 'GET',
+				lambdaName: 'ProductList'
+			});
+
+			sinon.stub(Settings, 'get')
+				.returns('https://janis.im/');
+		});
+
+		it('Should not reject when lambda responses with a 4xx statusCode', async () => {
+
+			const apiResponse = {
+				statusCode: 400,
+				body: { message: 'invalid filter price' }
+			};
+
+			sinon.stub(Invoker, 'apiCall')
+				.resolves(apiResponse);
+
+			const msCall = new MsCall();
+
+			const response = await msCall.safeList('catalog', 'product', {
+				filters: { price: 100 }
+			});
+
+			assert.deepStrictEqual(apiResponse, response);
+
+			sinon.assert.calledOnce(Invoker.apiCall);
+
+			assertEndpointGet();
+
+		});
+
+		it('Should not reject when lambda responses with a 5xx statusCode', async () => {
+
+			const apiResponse = {
+				statusCode: 500,
+				body: { message: 'internal server error' }
+			};
+
+			sinon.stub(Invoker, 'apiCall')
+				.resolves(apiResponse);
+
+			const msCall = new MsCall();
+
+			const response = await msCall.safeList('catalog', 'product');
+
+			assert.deepStrictEqual(apiResponse, response);
+
+			sinon.assert.calledOnce(Invoker.apiCall);
+
+			assertEndpointGet();
+
+		});
+
+	});
+
+	describe('Using shouldRetry()', () => {
+
+		const msCall = new MsCall();
+
+		it('Should return true if no statusCode was found in response', () => {
+			assert(msCall.shouldRetry());
+			assert(msCall.shouldRetry({ body: [] }));
+			assert(msCall.shouldRetry(new Error('TypeError')));
+			assert(msCall.shouldRetry(new MicroServiceCallError('Microservice fails', MsCall.errorCodes.MICROSERVICE_FAILED)));
+		});
+
+		it('Should return true if statusCode is 500 and not an exceptional one', () => {
+
+			assert(msCall.shouldRetry(new MicroServiceCallError(
+				'Microservice failed (504): Timeout',
+				MicroServiceCallError.codes.MICROSERVICE_FAILED,
+				504
+			)));
+
+			assert(msCall.shouldRetry({
+				statusCode: 504,
+				body: { message: 'Timeout' }
+
+			}));
+			assert(msCall.shouldRetry({
+				statusCode: 500
+			}));
+		});
+
+		it('Should return false if statusCode is 4xx', () => {
+
+			assert(!msCall.shouldRetry(new MicroServiceCallError(
+				'Microservice failed (404): Not Found',
+				MicroServiceCallError.codes.MICROSERVICE_FAILED,
+				404
+			)));
+
+			assert(!msCall.shouldRetry({
+				statusCode: 404,
+				body: { message: 'Not Found' }
+			}));
+
+			assert(!msCall.shouldRetry({
+				statusCode: 404
+			}));
+		});
+
+		it('Should return false if statusCode is 500 and is an exceptional one', () => {
+
+			assert(!msCall.shouldRetry(new MicroServiceCallError(
+				'Microservice failed (500): Argument passed in must be a single String of 12 bytes or a string of 24 hex characters',
+				MicroServiceCallError.codes.MICROSERVICE_FAILED,
+				500
+			)));
+			assert(!msCall.shouldRetry({
+				statusCode: 500,
+				body: { message: 'Argument passed in must be a single String of 12 bytes or a string of 24 hex characters' }
+			}));
+
+			assert(!msCall.shouldRetry(new MicroServiceCallError(
+				'Microservice failed (500): Invalid client',
+				MicroServiceCallError.codes.MICROSERVICE_FAILED,
+				500
+			)));
+			assert(!msCall.shouldRetry({
+				statusCode: 500,
+				body: { message: 'Invalid client' }
+			}));
 		});
 
 	});

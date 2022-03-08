@@ -20,7 +20,7 @@ npm install @janiscommerce/microservice-call
 
 `MsCall` uses the **Discovery Service** to find Endpoints using `service`, `namespace` and `method`.
 
-It's required to configure the setting `discoveryHost` using [settings](https://www.npmjs.com/package/@janiscommerce/settings).
+It's required to configure the setting `discoveryHost` using :package: [settings](https://www.npmjs.com/package/@janiscommerce/settings).
 
 ## Session
 

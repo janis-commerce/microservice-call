@@ -70,6 +70,6 @@ In `v4` the following errors were thrown, in `v5` are replaced or not be used an
 
 ### Changed the default pageSize :warning:
 
-Since lambda function are now used, the default page size is now 1000 for the methods `list()` and `safeList()`.
+Since lambda function are now used, the default page size is now **1.000** for the methods `list()` and `safeList()`.
 
 This will not break your code, but is important to beware this change.
