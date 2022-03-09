@@ -14,13 +14,15 @@ const EndpointFetcher = require('../lib/endpoint-fetcher');
 const MsCallError = require('../lib/ms-call-error');
 const MicroServiceCallError = require('../lib/ms-call-error');
 
-describe.only('MsCall', () => {
+describe('MsCall', () => {
 
 	const defaultListPageSize = 1000;
 
 	const headerPageSize = 'x-janis-page-size';
 	const headerPage = 'x-janis-page';
 	const headerTotal = 'x-janis-total';
+
+	const stubSetting = () => sinon.stub(Settings, 'get').returns('https://janis.im/');
 
 	const endpointGetResolves = (data, status = 200) => {
 		sinon.stub(axios, 'request')
@@ -39,10 +41,13 @@ describe.only('MsCall', () => {
 			sinon.assert.calledOnce(axios.request);
 	};
 
-
 	afterEach(() => {
-		sinon.restore();
+
 		EndpointFetcher.cache = {};
+		// eslint-disable-next-line no-underscore-dangle
+		EndpointFetcher._endpoint = undefined;
+
+		sinon.restore();
 	});
 
 	describe('Using call()', () => {
@@ -57,9 +62,10 @@ describe.only('MsCall', () => {
 				lambdaName
 			});
 
-			sinon.stub(Settings, 'get')
-				.returns('https://janis.im/');
+			stubSetting();
 		});
+
+		afterEach(() => sinon.assert.calledOnce(Settings.get));
 
 		it('Should invoke lambda function passing the correct event', async () => {
 
@@ -209,9 +215,10 @@ describe.only('MsCall', () => {
 				lambdaName: 'ProductPublish'
 			});
 
-			sinon.stub(Settings, 'get')
-				.returns('https://janis.im/');
+			stubSetting();
 		});
+
+		afterEach(() => sinon.assert.calledOnce(Settings.get));
 
 		it('Should not reject when lambda responses with a 4xx statusCode', async () => {
 
@@ -267,9 +274,10 @@ describe.only('MsCall', () => {
 				lambdaName
 			});
 
-			sinon.stub(Settings, 'get')
-				.returns('https://janis.im/');
+			stubSetting();
 		});
+
+		afterEach(() => sinon.assert.calledOnce(Settings.get));
 
 		it('Should invoke lambda a single time if the response is smaller than default page size', async () => {
 
@@ -370,9 +378,10 @@ describe.only('MsCall', () => {
 				lambdaName: 'ProductList'
 			});
 
-			sinon.stub(Settings, 'get')
-				.returns('https://janis.im/');
+			stubSetting();
 		});
+
+		afterEach(() => sinon.assert.calledOnce(Settings.get));
 
 		it('Should not reject when lambda responses with a 4xx statusCode', async () => {
 
@@ -493,4 +502,82 @@ describe.only('MsCall', () => {
 		});
 
 	});
+
+	describe('EndpointFetcher', () => {
+
+		afterEach(() => sinon.assert.calledOnce(Settings.get));
+
+		it('Should catch the setting', async () => {
+
+			stubSetting();
+
+			endpointGetResolves({});
+
+			await EndpointFetcher.get('catalog', 'product', 'get');
+			await EndpointFetcher.get('catalog', 'product', 'publish');
+			await EndpointFetcher.get('catalog', 'product', 'get');
+			await EndpointFetcher.get('catalog', 'product', 'publish');
+
+			sinon.assert.calledOnce(Settings.get);
+		});
+
+		it('Should reject when endpoint setting not found', async () => {
+
+			sinon.stub(Settings, 'get').returns();
+
+			sinon.spy(axios, 'request');
+
+			sinon.spy(Invoker, 'apiCall');
+
+			const msCall = new MsCall();
+
+			await assert.rejects(msCall.call('catalog', 'product', 'publish'), {
+				code: MsCallError.codes.INVALID_DISCOVERY_HOST_SETTING
+			});
+
+			sinon.assert.notCalled(axios.request);
+
+			sinon.assert.notCalled(Invoker.apiCall);
+		});
+
+		it('Should reject when endpoint not found', async () => {
+
+			stubSetting();
+
+			endpointGetResolves({}, 404);
+
+			sinon.spy(Invoker, 'apiCall');
+
+			const msCall = new MsCall();
+
+			await assert.rejects(msCall.call('catalog', 'product', 'publish'), {
+				code: MsCallError.codes.ENDPOINT_NOT_FOUND
+			});
+
+			sinon.assert.notCalled(Invoker.apiCall);
+
+			assertEndpointGet();
+		});
+
+		it('Should reject when endpoint could not be fetched', async () => {
+
+			stubSetting();
+
+			endpointGetRejects(new Error('Axios lib error'));
+
+			sinon.spy(Invoker, 'apiCall');
+
+			const msCall = new MsCall();
+
+			await assert.rejects(msCall.call('catalog', 'product', 'publish'), {
+				code: MsCallError.codes.ENDPOINT_REQUEST_FAILED
+			});
+
+			sinon.assert.notCalled(Invoker.apiCall);
+
+			assertEndpointGet();
+		});
+
+	});
+
 });
