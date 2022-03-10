@@ -39,6 +39,7 @@
     "eslint-plugin-import": "^2.25.4",
     "husky": "^7.0.4",
     "mocha": "^9.2.1",
+    "nock": "^13.2.4",
     "nyc": "^15.1.0",
     "sinon": "^13.0.1",
     "typescript": "^4.6.2"

@@ -3,6 +3,8 @@
 const sinon = require('sinon');
 const assert = require('assert');
 
+const nock = require('nock');
+
 const axios = require('axios').default;
 
 const Settings = require('@janiscommerce/settings');
@@ -557,6 +559,26 @@ describe('MsCall', () => {
 			sinon.assert.notCalled(Invoker.apiCall);
 
 			assertEndpointGet();
+		});
+
+		it('Should reject when endpoint not found', async () => {
+
+			stubSetting();
+
+			nock('https://janis.im')
+				.get('/api/endpoint')
+				.query({ service: 'catalog', namespace: 'product', method: 'publish' })
+				.reply(404, { message: 'Not found' });
+
+			sinon.spy(Invoker, 'apiCall');
+
+			const msCall = new MsCall();
+
+			await assert.rejects(msCall.call('catalog', 'product', 'publish'), {
+				code: MsCallError.codes.ENDPOINT_NOT_FOUND
+			});
+
+			sinon.assert.notCalled(Invoker.apiCall);
 		});
 
 		it('Should reject when endpoint could not be fetched', async () => {
