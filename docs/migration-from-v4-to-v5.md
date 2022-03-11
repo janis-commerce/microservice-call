@@ -4,11 +4,12 @@ Version `5.0.0` radically changed the way the package communicates with services
 
 API requests are no longer used, lambda invocations are now used with :package: [lambda](https://www.npmjs.com/package/@janiscommerce/lambda).
 
-### Changes you must do
+### Changes you **must** do
 
 In case the service is using error codes, it should be modified as follows.
 
-#### RouterFetcherError and ROUTER_FETCHER_ERROR_CODE
+<details>
+	<summary>RouterFetcherError and ROUTER_FETCHER_ERROR_CODE</summary>
 
 In `v4`...
 
@@ -50,7 +51,47 @@ try {
 }
 ```
 
-### Error codes changes
+</details>
+
+<details>
+	<summary>shouldRetry()</summary>
+
+The method `shouldRetry()` was deleted completely.
+
+In `v4`
+
+```js
+
+const MsCall = require('@janiscommerce/microservice-call');
+
+const msCall = new MsCall();
+
+const response = await msCall.safeCall('srv', 'np', 'md');
+
+if(msCall.shouldRetry(response))
+	throw new Error('Retry');
+
+```
+
+In `v5`
+
+```js
+
+const MsCall = require('@janiscommerce/microservice-call');
+
+const msCall = new MsCall();
+
+const response = await msCall.safeCall('srv', 'np', 'md');
+
+if(response.status >= 500)
+	throw new Error('Retry');
+
+```
+
+</details>
+
+<details>
+	<summary>Error codes changes</summary>
 
 In `v4` the :package: [router-fetcher](https://www.npmjs.com/package/@janiscommerce/router-fetcher) throws the following errors, in `v5` are thrown by `microservice-call`.
 
@@ -68,8 +109,13 @@ In `v4` the following errors were thrown, in `v5` are replaced or not be used an
 | `REQUEST_LIB_ERROR` **3** | **Not exists anymore** | Request library errors |
 | `JANIS_SECRET_MISSING` **4** | **Not exists anymore** | The Janis Secret is missing |
 
-### Changed the default pageSize :warning:
+</details>
+
+<details>
+	<summary>Changed the default pageSize :warning:</summary>
 
 Since lambda function are now used, the default page size is now **1.000** for the methods `list()` and `safeList()`.
 
 This will not break your code, but is important to beware this change.
+
+</details>

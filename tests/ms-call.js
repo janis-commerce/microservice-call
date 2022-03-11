@@ -14,7 +14,6 @@ const { Invoker } = require('@janiscommerce/lambda');
 const MsCall = require('../lib/ms-call');
 const EndpointFetcher = require('../lib/endpoint-fetcher');
 const MsCallError = require('../lib/ms-call-error');
-const MicroServiceCallError = require('../lib/ms-call-error');
 
 describe('MsCall', () => {
 
@@ -429,78 +428,6 @@ describe('MsCall', () => {
 
 			assertEndpointGet();
 
-		});
-
-	});
-
-	describe('Using shouldRetry()', () => {
-
-		const msCall = new MsCall();
-
-		it('Should return true if no statusCode was found in response', () => {
-			assert(msCall.shouldRetry());
-			assert(msCall.shouldRetry({ body: [] }));
-			assert(msCall.shouldRetry(new Error('TypeError')));
-			assert(msCall.shouldRetry(new MicroServiceCallError('Microservice fails', MsCall.errorCodes.MICROSERVICE_FAILED)));
-		});
-
-		it('Should return true if statusCode is 500 and not an exceptional one', () => {
-
-			assert(msCall.shouldRetry(new MicroServiceCallError(
-				'Microservice failed (504): Timeout',
-				MicroServiceCallError.codes.MICROSERVICE_FAILED,
-				504
-			)));
-
-			assert(msCall.shouldRetry({
-				statusCode: 504,
-				body: { message: 'Timeout' }
-
-			}));
-			assert(msCall.shouldRetry({
-				statusCode: 500
-			}));
-		});
-
-		it('Should return false if statusCode is 4xx', () => {
-
-			assert(!msCall.shouldRetry(new MicroServiceCallError(
-				'Microservice failed (404): Not Found',
-				MicroServiceCallError.codes.MICROSERVICE_FAILED,
-				404
-			)));
-
-			assert(!msCall.shouldRetry({
-				statusCode: 404,
-				body: { message: 'Not Found' }
-			}));
-
-			assert(!msCall.shouldRetry({
-				statusCode: 404
-			}));
-		});
-
-		it('Should return false if statusCode is 500 and is an exceptional one', () => {
-
-			assert(!msCall.shouldRetry(new MicroServiceCallError(
-				'Microservice failed (500): Argument passed in must be a single String of 12 bytes or a string of 24 hex characters',
-				MicroServiceCallError.codes.MICROSERVICE_FAILED,
-				500
-			)));
-			assert(!msCall.shouldRetry({
-				statusCode: 500,
-				body: { message: 'Argument passed in must be a single String of 12 bytes or a string of 24 hex characters' }
-			}));
-
-			assert(!msCall.shouldRetry(new MicroServiceCallError(
-				'Microservice failed (500): Invalid client',
-				MicroServiceCallError.codes.MICROSERVICE_FAILED,
-				500
-			)));
-			assert(!msCall.shouldRetry({
-				statusCode: 500,
-				body: { message: 'Invalid client' }
-			}));
 		});
 
 	});

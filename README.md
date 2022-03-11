@@ -74,14 +74,6 @@ These methods **WILL NOT THROW AN ERROR** when response `statusCode` is `400+`.
 
 ### Extra
 
-* `shouldRetry(response)` _Since 4.0.0_
-
-	Indicates if should re-try the call. It is useful for Event-Listeners API to avoid unnecessary retries.
-
-	Params: `response` `{MicroServiceCallResponse | MicroServiceCallError}`
-
-	Returns a `Boolean`.
-
 * `static get errorCodes()` _Since 5.0.0_
 
 	Retrieves the MicroserviceCallError codes.
@@ -219,11 +211,6 @@ try {
 			statusCode: 404
 		}
 	*/
-
-	if(ms.shouldRetry(error)) // false
-		throw new Error('Should Retry')
-
-	// Do something
 }
 ```
 </details>
@@ -280,11 +267,6 @@ try {
 			statusCode: 500
 		}
 	*/
-
-	if(ms.shouldRetry(error)) // true
-		throw new Error('Service Call Fails. Should Retry')
-
-	// Do something
 }
 ```
 
@@ -317,8 +299,8 @@ const response = await ms.safeCall('pricing', 'base-price', 'get', null, null, {
 	}
 */
 
-if(ms.shouldRetry(response)) // true
-	throw new Error('Should Retry')
+if(response.status >= 500) // true
+	throw new Error('Should Retry');
 
 // Do something
 
@@ -338,8 +320,8 @@ const response = await ms.safeCall('wms', 'stock', 'post', { name: 'stock-1', qu
 	}
 */
 
-if(ms.shouldRetry(response)) // false
-	throw new Error('Should Retry')
+if(response.status >= 500) // false
+	throw new Error('Should Retry');
 
 // Do something
 
@@ -390,8 +372,8 @@ const response = await ms.safeList('commerce', 'seller', { filters });
 	}
 */
 
-if(ms.shouldRetry(error)) // false
-	throw new Error('Service Call Fails. Should Retry')
+if(response.status >= 500) // false
+	throw new Error('Service Call Fails. Should Retry');
 
 // Do something
 
