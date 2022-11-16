@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [4.4.0] - 2022-11-16
 ### Changed
 - Methods `list()` and `safeList()` using length and pageSize to iterate, avoiding totals calculation
 
