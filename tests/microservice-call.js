@@ -60,7 +60,7 @@ describe('MicroService call', () => {
 		assertGetEndpoint('good', 'good', 'good');
 	};
 
-	describe('Call', () => {
+	describe('call()', () => {
 
 		beforeEach(() => {
 			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
@@ -172,7 +172,7 @@ describe('MicroService call', () => {
 					.get('/api/sample-entity')
 					.reply(200, mockMsResponse, headersResponse);
 
-				const data = await ms.call('sample-service', 'sample-entity', 'list');
+				const data = await ms.call('sample-service', 'sample-entity', 'list', null, null, null);
 
 				assert.deepStrictEqual(data, {
 					statusCode: 200,
@@ -317,7 +317,7 @@ describe('MicroService call', () => {
 		});
 	});
 
-	describe('SafeCall', () => {
+	describe('safeCall()', () => {
 
 		beforeEach(() => {
 			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
@@ -565,18 +565,28 @@ describe('MicroService call', () => {
 		});
 	});
 
-	describe('List', () => {
+	describe('list()', () => {
 
 		beforeEach(() => {
 			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
 		});
 
+		const assertCall = (...calls) => {
+			calls.forEach(call => {
+				sinon.assert.calledWithExactly(MicroServiceCall.prototype.call, ...[
+					'sample-service',
+					'sample-entity',
+					'list',
+					...call
+				]);
+			});
+		};
+
 		it('Should passed the correct params and headers', async () => {
 
 			sinon.stub(MicroServiceCall.prototype, 'call')
-				.returns({
+				.resolves({
 					statusCode: 200,
-					headers: { 'x-janis-total': 0 },
 					body: []
 				});
 
@@ -584,28 +594,21 @@ describe('MicroService call', () => {
 
 			assert.deepEqual(data, {
 				statusCode: 200,
-				headers: {
-					'x-janis-total': 0
-				},
 				body: []
 			});
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
-				'sample-service',
-				'sample-entity',
-				'list',
+			assertCall([
 				null,
-				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60, 'x-janis-totals': false },
 				undefined
-			);
+			]);
 		});
 
 		it('Should passed the correct params and headers with filters', async () => {
 
 			sinon.stub(MicroServiceCall.prototype, 'call')
-				.returns({
+				.resolves({
 					statusCode: 200,
-					headers: { 'x-janis-total': 0 },
 					body: []
 				});
 
@@ -613,26 +616,20 @@ describe('MicroService call', () => {
 
 			assert.deepEqual(data, {
 				statusCode: 200,
-				headers: {
-					'x-janis-total': 0
-				},
 				body: []
 			});
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
-				'sample-service',
-				'sample-entity',
-				'list',
+			assertCall([
 				{ filters: { status: 'active' } },
-				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60, 'x-janis-totals': false },
 				undefined
-			);
+			]);
 		});
 
 		it('Should passed the correct params and headers with endpointParameters', async () => {
 
 			sinon.stub(MicroServiceCall.prototype, 'call')
-				.returns({
+				.resolves({
 					statusCode: 200,
 					headers: { 'x-janis-total': 0 },
 					body: []
@@ -648,22 +645,18 @@ describe('MicroService call', () => {
 				body: []
 			});
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
-				'sample-service',
-				'sample-entity',
-				'list',
+			assertCall([
 				null,
-				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60, 'x-janis-totals': false },
 				{ id: 'some-id' }
-			);
+			]);
 		});
 
 		it('Should passed the correct params and headers with custom pageSize', async () => {
 
 			sinon.stub(MicroServiceCall.prototype, 'call')
-				.returns({
+				.resolves({
 					statusCode: 200,
-					headers: { 'x-janis-total': 0 },
 					body: []
 				});
 
@@ -671,51 +664,39 @@ describe('MicroService call', () => {
 
 			assert.deepEqual(data, {
 				statusCode: 200,
-				headers: {
-					'x-janis-total': 0
-				},
 				body: []
 			});
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
-				'sample-service',
-				'sample-entity',
-				'list',
+			assertCall([
 				null,
-				{ 'x-janis-page': 1, 'x-janis-page-size': 800 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 800, 'x-janis-totals': false },
 				null
-			);
+			]);
 		});
 
 		it('Should make several calls to get full list of objects', async () => {
 
-			const msCallStub = sinon.stub(MicroServiceCall.prototype, 'call');
+			sinon.stub(MicroServiceCall.prototype, 'call')
+				.onCall(0)
+				.resolves({
+					statusCode: 200,
+					body: [{ name: 'item-1' }]
+				})
+				.onCall(1)
+				.resolves({
+					statusCode: 200,
+					body: [{ name: 'item-2' }]
+				})
+				.onCall(2)
+				.resolves({
+					statusCode: 200,
+					body: [{ name: 'item-3' }]
+				});
 
-			msCallStub.onCall(0).returns({
-				statusCode: 200,
-				headers: { 'x-janis-total': 3 },
-				body: [{ name: 'item-1' }]
-			});
-
-			msCallStub.onCall(1).returns({
-				statusCode: 200,
-				headers: { 'x-janis-total': 3 },
-				body: [{ name: 'item-2' }]
-			});
-
-			msCallStub.onCall(2).returns({
-				statusCode: 200,
-				headers: { 'x-janis-total': 3 },
-				body: [{ name: 'item-3' }]
-			});
-
-			const data = await ms.list('sample-service', 'sample-entity');
+			const data = await ms.list('sample-service', 'sample-entity', null, null, 1);
 
 			assert.deepEqual(data, {
 				statusCode: 200,
-				headers: {
-					'x-janis-total': 3
-				},
 				body: [
 					{ name: 'item-1' },
 					{ name: 'item-2' },
@@ -723,34 +704,21 @@ describe('MicroService call', () => {
 				]
 			});
 
-			sinon.assert.calledThrice(MicroServiceCall.prototype.call);
+			sinon.assert.callCount(MicroServiceCall.prototype.call, 4); // las 3 paginas y una más porque justo devuelve 1 y "podría haber más"
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
-				'sample-service',
-				'sample-entity',
-				'list',
+			assertCall([
 				null,
-				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
-				undefined
-			);
-
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
-				'sample-service',
-				'sample-entity',
-				'list',
+				{ 'x-janis-page': 1, 'x-janis-page-size': 1, 'x-janis-totals': false },
+				null
+			], [
 				null,
-				{ 'x-janis-page': 2, 'x-janis-page-size': 60 },
-				undefined
-			);
-
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
-				'sample-service',
-				'sample-entity',
-				'list',
+				{ 'x-janis-page': 2, 'x-janis-page-size': 1, 'x-janis-totals': false },
+				null
+			], [
 				null,
-				{ 'x-janis-page': 3, 'x-janis-page-size': 60 },
-				undefined
-			);
+				{ 'x-janis-page': 3, 'x-janis-page-size': 1, 'x-janis-totals': false },
+				null
+			]);
 		});
 
 		it('Should return a MicroServiceError if Services response statusCode 400+', async () => {
@@ -762,39 +730,36 @@ describe('MicroService call', () => {
 					500
 				));
 
-			await assert.rejects(ms.list('sample-service', 'sample-entity'), {
+			await assert.rejects(ms.list('sample-service', 'sample-entity', null, null, 1), {
 				name: 'MicroServiceCallError',
 				code: MicroServiceCallError.codes.MICROSERVICE_FAILED,
 				statusCode: 500
 			});
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
-				'sample-service',
-				'sample-entity',
-				'list',
+			assertCall([
 				null,
-				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
-				undefined
-			);
+				{ 'x-janis-page': 1, 'x-janis-page-size': 1, 'x-janis-totals': false },
+				null
+			]);
 		});
 
 		it('Should return a MicroServiceError if Services response statusCode 400+ after several calls', async () => {
 
-			const msCallStub = sinon.stub(MicroServiceCall.prototype, 'call');
+			sinon.stub(MicroServiceCall.prototype, 'call')
+				.onCall(0)
+				.resolves({
+					statusCode: 200,
+					headers: { 'x-janis-total': 3 },
+					body: [{ name: 'item-1' }]
+				})
+				.onCall(1)
+				.rejects(new MicroServiceCallError(
+					'Microservice failed (500): Service Fails',
+					MicroServiceCallError.codes.MICROSERVICE_FAILED,
+					500
+				));
 
-			msCallStub.onCall(0).returns({
-				statusCode: 200,
-				headers: { 'x-janis-total': 3 },
-				body: [{ name: 'item-1' }]
-			});
-
-			msCallStub.onCall(1).rejects(new MicroServiceCallError(
-				'Microservice failed (500): Service Fails',
-				MicroServiceCallError.codes.MICROSERVICE_FAILED,
-				500
-			));
-
-			await assert.rejects(ms.list('sample-service', 'sample-entity'), {
+			await assert.rejects(ms.list('sample-service', 'sample-entity', null, null, 1), {
 				name: 'MicroServiceCallError',
 				code: MicroServiceCallError.codes.MICROSERVICE_FAILED,
 				statusCode: 500
@@ -802,36 +767,39 @@ describe('MicroService call', () => {
 
 			sinon.assert.calledTwice(MicroServiceCall.prototype.call);
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
-				'sample-service',
-				'sample-entity',
-				'list',
+			assertCall([
 				null,
-				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
-				undefined
-			);
-
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.call,
-				'sample-service',
-				'sample-entity',
-				'list',
+				{ 'x-janis-page': 1, 'x-janis-page-size': 1, 'x-janis-totals': false },
+				null
+			], [
 				null,
-				{ 'x-janis-page': 2, 'x-janis-page-size': 60 },
-				undefined
-			);
+				{ 'x-janis-page': 2, 'x-janis-page-size': 1, 'x-janis-totals': false },
+				null
+			]);
 		});
 	});
 
-	describe('SafeList', () => {
+	describe('safeList()', () => {
 
 		beforeEach(() => {
 			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
 		});
 
+		const assertSafeCall = (...calls) => {
+			calls.forEach(call => {
+				sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall, ...[
+					'sample-service',
+					'sample-entity',
+					'list',
+					...call
+				]);
+			});
+		};
+
 		it('Should passed the correct params and headers', async () => {
 
 			sinon.stub(MicroServiceCall.prototype, 'safeCall')
-				.returns({
+				.resolves({
 					statusCode: 200,
 					headers: { 'x-janis-total': 0 },
 					body: []
@@ -847,20 +815,17 @@ describe('MicroService call', () => {
 				body: []
 			});
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
-				'sample-service',
-				'sample-entity',
-				'list',
+			assertSafeCall([
 				null,
-				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60, 'x-janis-totals': false },
 				undefined
-			);
+			]);
 		});
 
 		it('Should passed the correct params and headers with filters', async () => {
 
 			sinon.stub(MicroServiceCall.prototype, 'safeCall')
-				.returns({
+				.resolves({
 					statusCode: 200,
 					headers: { 'x-janis-total': 0 },
 					body: []
@@ -876,20 +841,17 @@ describe('MicroService call', () => {
 				body: []
 			});
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
-				'sample-service',
-				'sample-entity',
-				'list',
+			assertSafeCall([
 				{ filters: { status: 'active' } },
-				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60, 'x-janis-totals': false },
 				undefined
-			);
+			]);
 		});
 
 		it('Should passed the correct params and headers with endpoint-parameters', async () => {
 
 			sinon.stub(MicroServiceCall.prototype, 'safeCall')
-				.returns({
+				.resolves({
 					statusCode: 200,
 					headers: { 'x-janis-total': 0 },
 					body: []
@@ -905,86 +867,63 @@ describe('MicroService call', () => {
 				body: []
 			});
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
-				'sample-service',
-				'sample-entity',
-				'list',
+			assertSafeCall([
 				null,
-				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60, 'x-janis-totals': false },
 				{ id: 'some-id' }
-			);
+			]);
 		});
 
 		it('Should make several calls to get full list of objects', async () => {
 
-			const msCallStub = sinon.stub(MicroServiceCall.prototype, 'safeCall');
+			sinon.stub(MicroServiceCall.prototype, 'safeCall')
+				.onCall(0)
+				.resolves({
+					statusCode: 200,
+					body: [{ name: 'item-1' }]
+				})
+				.onCall(1)
+				.resolves({
+					statusCode: 200,
+					body: [{ name: 'item-2' }]
+				})
+				.onCall(2)
+				.resolves({
+					statusCode: 200,
+					body: []
+				});
 
-			msCallStub.onCall(0).returns({
-				statusCode: 200,
-				headers: { 'x-janis-total': 3 },
-				body: [{ name: 'item-1' }]
-			});
-
-			msCallStub.onCall(1).returns({
-				statusCode: 200,
-				headers: { 'x-janis-total': 3 },
-				body: [{ name: 'item-2' }]
-			});
-
-			msCallStub.onCall(2).returns({
-				statusCode: 200,
-				headers: { 'x-janis-total': 3 },
-				body: [{ name: 'item-3' }]
-			});
-
-			const data = await ms.safeList('sample-service', 'sample-entity');
+			const data = await ms.safeList('sample-service', 'sample-entity', null, null, 1);
 
 			assert.deepEqual(data, {
 				statusCode: 200,
-				headers: {
-					'x-janis-total': 3
-				},
 				body: [
 					{ name: 'item-1' },
-					{ name: 'item-2' },
-					{ name: 'item-3' }
+					{ name: 'item-2' }
 				]
 			});
 
-			sinon.assert.calledThrice(MicroServiceCall.prototype.safeCall);
+			sinon.assert.callCount(MicroServiceCall.prototype.safeCall, 3);
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
-				'sample-service',
-				'sample-entity',
-				'list',
+			assertSafeCall([
 				null,
-				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
-				undefined
-			);
-
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
-				'sample-service',
-				'sample-entity',
-				'list',
+				{ 'x-janis-page': 1, 'x-janis-page-size': 1, 'x-janis-totals': false },
+				null
+			], [
 				null,
-				{ 'x-janis-page': 2, 'x-janis-page-size': 60 },
-				undefined
-			);
-
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
-				'sample-service',
-				'sample-entity',
-				'list',
+				{ 'x-janis-page': 2, 'x-janis-page-size': 1, 'x-janis-totals': false },
+				null
+			], [
 				null,
-				{ 'x-janis-page': 3, 'x-janis-page-size': 60 },
-				undefined
-			);
+				{ 'x-janis-page': 3, 'x-janis-page-size': 1, 'x-janis-totals': false },
+				null
+			]);
 		});
 
 		it('Should not rejects if Services response statusCode 400+', async () => {
 
 			sinon.stub(MicroServiceCall.prototype, 'safeCall')
-				.returns({
+				.resolves({
 					statusCode: 500,
 					headers: {},
 					body: { message: 'Service Fails' }
@@ -998,59 +937,45 @@ describe('MicroService call', () => {
 				body: { message: 'Service Fails' }
 			});
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
-				'sample-service',
-				'sample-entity',
-				'list',
+			assertSafeCall([
 				null,
-				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
+				{ 'x-janis-page': 1, 'x-janis-page-size': 60, 'x-janis-totals': false },
 				undefined
-			);
+			]);
 		});
 
 		it('Should not rejects if Services response statusCode 400+ after several calls', async () => {
 
-			const msCallStub = sinon.stub(MicroServiceCall.prototype, 'safeCall');
+			sinon.stub(MicroServiceCall.prototype, 'safeCall')
+				.onCall(0)
+				.resolves({
+					statusCode: 200,
+					body: [{ name: 'item-1' }, { name: 'item-2' }]
+				})
+				.onCall(1)
+				.resolves({
+					statusCode: 500,
+					body: { message: 'Service Fails' }
+				});
 
-			msCallStub.onCall(0).returns({
-				statusCode: 200,
-				headers: { 'x-janis-total': 3 },
-				body: [{ name: 'item-1' }]
-			});
-
-			msCallStub.onCall(1).returns({
-				statusCode: 500,
-				headers: {},
-				body: { message: 'Service Fails' }
-			});
-
-			const data = await ms.safeList('sample-service', 'sample-entity');
+			const data = await ms.safeList('sample-service', 'sample-entity', null, null, 2);
 
 			assert.deepEqual(data, {
 				statusCode: 500,
-				headers: {},
 				body: { message: 'Service Fails' }
 			});
 
 			sinon.assert.calledTwice(MicroServiceCall.prototype.safeCall);
 
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
-				'sample-service',
-				'sample-entity',
-				'list',
+			assertSafeCall([
 				null,
-				{ 'x-janis-page': 1, 'x-janis-page-size': 60 },
-				undefined
-			);
-
-			sinon.assert.calledWithExactly(MicroServiceCall.prototype.safeCall,
-				'sample-service',
-				'sample-entity',
-				'list',
+				{ 'x-janis-page': 1, 'x-janis-page-size': 2, 'x-janis-totals': false },
+				null
+			], [
 				null,
-				{ 'x-janis-page': 2, 'x-janis-page-size': 60 },
-				undefined
-			);
+				{ 'x-janis-page': 2, 'x-janis-page-size': 2, 'x-janis-totals': false },
+				null
+			]);
 		});
 	});
 
@@ -1132,7 +1057,7 @@ describe('MicroService call', () => {
 
 		it('Should cache the getEndpoint response after 2 times calling with same parameters', async () => {
 
-			sinon.stub(RouterFetcher.prototype, 'getEndpoint').returns({
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').resolves({
 				endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
 				httpMethod: 'POST'
 			});
@@ -1169,7 +1094,7 @@ describe('MicroService call', () => {
 
 		it('Shouldn\'t cache the getEndpoint response after 2 times calling with different parameters', async () => {
 
-			sinon.stub(RouterFetcher.prototype, 'getEndpoint').returns({
+			sinon.stub(RouterFetcher.prototype, 'getEndpoint').resolves({
 				endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
 				httpMethod: 'POST'
 			});

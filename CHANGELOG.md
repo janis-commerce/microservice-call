@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+- Methods `list()` and `safeList()` using length and pageSize to iterate, avoiding totals calculation
+
+### Fixed
+- `endpointParameters` not rejecting when `null` was received
+
 ## [4.3.4] - 2021-11-22
 ### Fixed
 - Querystring serialization fix for objects and arrays
