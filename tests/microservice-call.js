@@ -16,6 +16,7 @@ const {
 	assertSecretsGet,
 	secretsNotCalled
 } = require('./helpers/secret-fetcher.js');
+
 const Discovery = require('../lib/discovery');
 
 describe('MicroService call', () => {
@@ -44,12 +45,12 @@ describe('MicroService call', () => {
 
 	const getEndpointStub = result => {
 
-		sinon.stub(Invoker, 'clientCall')
+		sinon.stub(Invoker, 'serviceCall')
 			.resolves({ payload: result });
 	};
 
 	const assertGetEndpoint = (service, namespace, method) => {
-		sinon.assert.calledOnceWithExactly(Invoker.clientCall, 'discovery', 'GetEndpoint', { service, namespace, method });
+		sinon.assert.calledOnceWithExactly(Invoker.serviceCall, 'discovery', 'GetEndpoint', { service, namespace, method });
 	};
 
 	const msCallRejects = async (statusCode, message) => {
@@ -1089,13 +1090,13 @@ describe('MicroService call', () => {
 
 			assert.deepStrictEqual(data, data2);
 
-			sinon.assert.calledOnce(Invoker.clientCall);
+			sinon.assert.calledOnce(Invoker.serviceCall);
 		});
 
 		it('Shouldn\'t cache the getEndpoint response after 2 times calling with different parameters', async () => {
 
 
-			sinon.stub(Invoker, 'clientCall')
+			sinon.stub(Invoker, 'serviceCall')
 				.onFirstCall()
 				.resolves({
 					payload: {
@@ -1140,7 +1141,7 @@ describe('MicroService call', () => {
 
 			assert.deepStrictEqual(data, data2);
 
-			sinon.assert.calledTwice(Invoker.clientCall);
+			sinon.assert.calledTwice(Invoker.serviceCall);
 		});
 
 	});

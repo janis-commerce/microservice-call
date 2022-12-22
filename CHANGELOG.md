@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [5.0.0-beta.1] - 2022-12-22
+### Fixed
+- Fixed Invoker method to invoke Discovery `GetEndpoint` lambda
+
 ## [5.0.0-beta.0] - 2022-12-22
 ### Changed
 - Using **Discovery** instead of **Router**
