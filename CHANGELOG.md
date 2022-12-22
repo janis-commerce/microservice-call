@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [5.0.0-beta.0] - 2022-12-22
+### Changed
+- Using **Discovery** instead of **Router**
+
 ## [4.4.0] - 2022-11-16
 ### Changed
 - Methods `list()` and `safeList()` using length and pageSize to iterate, avoiding totals calculation
