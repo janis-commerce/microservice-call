@@ -28,7 +28,7 @@
   "homepage": "https://github.com/janis-commerce/microservice-call#readme",
   "dependencies": {
     "@janiscommerce/aws-secrets-manager": "^0.2.1",
-    "@janiscommerce/router-fetcher": "^2.1.2",
+    "@janiscommerce/lambda": "^4.1.1",
     "axios": "^0.24.0",
     "qs": "^6.10.1"
   },

@@ -3,7 +3,8 @@
 const nock = require('nock');
 const sinon = require('sinon');
 const assert = require('assert');
-const RouterFetcher = require('@janiscommerce/router-fetcher');
+
+const { Invoker } = require('@janiscommerce/lambda');
 const MicroServiceCall = require('../lib/microservice-call');
 const MicroServiceCallError = require('../lib/microservice-call-error');
 
@@ -15,6 +16,7 @@ const {
 	assertSecretsGet,
 	secretsNotCalled
 } = require('./helpers/secret-fetcher.js');
+const Discovery = require('../lib/discovery');
 
 describe('MicroService call', () => {
 
@@ -37,16 +39,17 @@ describe('MicroService call', () => {
 
 		sinon.restore();
 
-		MicroServiceCall._cache = {}; // eslint-disable-line
+		Discovery.cleanCache();
 	});
 
 	const getEndpointStub = result => {
-		sinon.stub(RouterFetcher.prototype, 'getEndpoint')
-			.resolves(result);
+
+		sinon.stub(Invoker, 'clientCall')
+			.resolves({ payload: result });
 	};
 
 	const assertGetEndpoint = (service, namespace, method) => {
-		sinon.assert.calledOnceWithExactly(RouterFetcher.prototype.getEndpoint, service, namespace, method);
+		sinon.assert.calledOnceWithExactly(Invoker.clientCall, 'discovery', 'GetEndpoint', { service, namespace, method });
 	};
 
 	const msCallRejects = async (statusCode, message) => {
@@ -68,15 +71,12 @@ describe('MicroService call', () => {
 
 		context('When request fails', () => {
 
-			it('Should return a RouterFetcherError when no Settings', async () => {
-				await assert.rejects(() => ms.call('any', 'any', 'any'), { name: 'RouterFetcherError' });
-			});
-
 			it('Should return a MicroServiceCallError when the called microservice returns an error', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://localhost/foo/bar',
-					httpMethod: 'get'
+					baseUrl: 'https://localhost',
+					path: '/foo/bar',
+					method: 'get'
 				});
 
 				nock('https://localhost')
@@ -91,8 +91,9 @@ describe('MicroService call', () => {
 			it('Should use response body \'message\' prop as error message if present', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://localhost/foo/bar',
-					httpMethod: 'get'
+					baseUrl: 'https://localhost',
+					path: '/foo/bar',
+					method: 'get'
 				});
 
 				nock('https://localhost')
@@ -107,8 +108,9 @@ describe('MicroService call', () => {
 			it('Should use response body stringified as error message if message prop is not present', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://localhost/foo/bar',
-					httpMethod: 'get'
+					baseUrl: 'https://localhost',
+					path: '/foo/bar',
+					method: 'get'
 				});
 
 				nock('https://localhost')
@@ -123,8 +125,9 @@ describe('MicroService call', () => {
 			it('Should use a generic message as error message if response body is empty', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://localhost/foo/bar',
-					httpMethod: 'get'
+					baseUrl: 'https://localhost',
+					path: '/foo/bar',
+					method: 'get'
 				});
 
 				nock('https://localhost')
@@ -137,8 +140,9 @@ describe('MicroService call', () => {
 			it('Should return the lib error when the request library cannot make the call to the ms', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-					httpMethod: 'get'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/sample-entity',
+					method: 'get'
 				});
 
 				nock('https://sample-service.janis-test.in')
@@ -162,8 +166,9 @@ describe('MicroService call', () => {
 			it('Should return the correct response object on successful calls', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-					httpMethod: 'get'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/sample-entity',
+					method: 'get'
 				});
 
 				const mockMsResponse = [{ name: 'foo' }];
@@ -187,8 +192,9 @@ describe('MicroService call', () => {
 			it('Should send the correct values and return the correct values from ms', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-					httpMethod: 'POST'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/sample-entity',
+					method: 'POST'
 				});
 
 				const mockMsResponse = { id: 'foo-id' };
@@ -212,8 +218,9 @@ describe('MicroService call', () => {
 			it('Should make the request with the correct path params', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/alarms/{alarmName}/state/{alarmState}',
-					httpMethod: 'POST'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/alarms/{alarmName}/state/{alarmState}',
+					method: 'POST'
 				});
 
 				const mockMsResponse = { name: 'foo' };
@@ -237,8 +244,9 @@ describe('MicroService call', () => {
 			it('Should make the request with the service name and secret from env variables', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/alarms/{alarmName}/state',
-					httpMethod: 'POST'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/alarms/{alarmName}/state',
+					method: 'POST'
 				});
 
 				const mockMsResponse = { name: 'foo' };
@@ -263,8 +271,9 @@ describe('MicroService call', () => {
 				ms.session = {};
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/alarms/{alarmName}/state',
-					httpMethod: 'PUT'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/alarms/{alarmName}/state',
+					method: 'PUT'
 				});
 
 				const mockMsResponse = { name: 'foo' };
@@ -292,8 +301,9 @@ describe('MicroService call', () => {
 				};
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/alarms/{alarmName}/state',
-					httpMethod: 'PATCH'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/alarms/{alarmName}/state',
+					method: 'PATCH'
 				});
 
 				const mockMsResponse = { name: 'foo' };
@@ -325,15 +335,12 @@ describe('MicroService call', () => {
 
 		context('When request fails', () => {
 
-			it('Should return a RouterFetcherError when no Settings', async () => {
-				await assert.rejects(() => ms.safeCall('any', 'any', 'any'), { name: 'RouterFetcherError' });
-			});
-
 			it('Should not return an Error when the called microservice returns an statusCode 400+', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-					httpMethod: 'get'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/sample-entity',
+					method: 'get'
 				});
 
 				nock('https://sample-service.janis-test.in')
@@ -359,8 +366,9 @@ describe('MicroService call', () => {
 			it('Should not return an error when services response statusCode 500+ with no body', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-					httpMethod: 'get'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/sample-entity',
+					method: 'get'
 				});
 
 				nock('https://sample-service.janis-test.in')
@@ -380,8 +388,9 @@ describe('MicroService call', () => {
 			it('Should return the lib error when the request library cannot make the call to the ms', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-					httpMethod: 'get'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/sample-entity',
+					method: 'get'
 				});
 
 				nock('https://sample-service.janis-test.in')
@@ -402,27 +411,12 @@ describe('MicroService call', () => {
 				'content-type': 'application/json'
 			};
 
-			it('Should call the router fetcher without "httpMethod"', async () => {
-
-				getEndpointStub({});
-
-				sinon.stub(MicroServiceCall.prototype, '_makeRequest').callsFake(() => ({
-					headers: {},
-					statusCode: 200,
-					statusMessage: undefined,
-					body: undefined
-				}));
-
-				await ms.safeCall('service', 'namespace', 'method', {}, {});
-
-				assertGetEndpoint('service', 'namespace', 'method');
-			});
-
 			it('Should return the correct response object on successful calls', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-					httpMethod: 'get'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/sample-entity',
+					method: 'get'
 				});
 
 				const mockMsResponse = [{ name: 'foo' }];
@@ -444,8 +438,9 @@ describe('MicroService call', () => {
 			it('Should send the correct values and return the correct values from ms', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-					httpMethod: 'POST'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/sample-entity',
+					method: 'POST'
 				});
 
 				const mockMsResponse = { id: 'foo-id' };
@@ -467,8 +462,9 @@ describe('MicroService call', () => {
 			it('Should make the request with the correct path params', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/alarms/{alarmName}/state/{alarmState}',
-					httpMethod: 'POST'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/alarms/{alarmName}/state/{alarmState}',
+					method: 'POST'
 				});
 
 				const mockMsResponse = { name: 'foo' };
@@ -490,8 +486,9 @@ describe('MicroService call', () => {
 			it('Should make the request with the service name and secret from env variables', async () => {
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/alarms/{alarmName}/state',
-					httpMethod: 'POST'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/alarms/{alarmName}/state',
+					method: 'POST'
 				});
 
 				const mockMsResponse = { name: 'foo' };
@@ -514,8 +511,9 @@ describe('MicroService call', () => {
 				ms.session = {};
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/alarms/{alarmName}/state',
-					httpMethod: 'PUT'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/alarms/{alarmName}/state',
+					method: 'PUT'
 				});
 
 
@@ -542,8 +540,9 @@ describe('MicroService call', () => {
 				};
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/alarms/{alarmName}/state',
-					httpMethod: 'PATCH'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/alarms/{alarmName}/state',
+					method: 'PATCH'
 				});
 
 				const mockMsResponse = { name: 'foo' };
@@ -1057,9 +1056,10 @@ describe('MicroService call', () => {
 
 		it('Should cache the getEndpoint response after 2 times calling with same parameters', async () => {
 
-			sinon.stub(RouterFetcher.prototype, 'getEndpoint').resolves({
-				endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-				httpMethod: 'POST'
+			getEndpointStub({
+				baseUrl: 'https://sample-service.janis-test.in',
+				path: '/api/sample-entity',
+				method: 'POST'
 			});
 
 			const mockMsResponse = { id: 'foo-id' };
@@ -1089,15 +1089,29 @@ describe('MicroService call', () => {
 
 			assert.deepStrictEqual(data, data2);
 
-			sinon.assert.calledOnceWithExactly(RouterFetcher.prototype.getEndpoint, 'sample-service', 'sample-entity', 'create');
+			sinon.assert.calledOnce(Invoker.clientCall);
 		});
 
 		it('Shouldn\'t cache the getEndpoint response after 2 times calling with different parameters', async () => {
 
-			sinon.stub(RouterFetcher.prototype, 'getEndpoint').resolves({
-				endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-				httpMethod: 'POST'
-			});
+
+			sinon.stub(Invoker, 'clientCall')
+				.onFirstCall()
+				.resolves({
+					payload: {
+						baseUrl: 'https://sample-service.janis-test.in',
+						path: '/api/sample-entity',
+						method: 'POST'
+					}
+				})
+				.onSecondCall()
+				.resolves({
+					payload: {
+						baseUrl: 'https://sample-service.janis-test.in',
+						path: '/api/sample-entity',
+						method: 'PUT'
+					}
+				});
 
 			const mockMsResponse = { id: 'foo-id' };
 
@@ -1119,14 +1133,14 @@ describe('MicroService call', () => {
 			});
 
 			nock('https://sample-service.janis-test.in')
-				.post('/api/sample-entity', { foo: 'bar' })
+				.put('/api/sample-entity', { foo: 'bar' })
 				.reply(200, mockMsResponse, headersResponse);
 
 			const data2 = await ms.call('sample-service', 'sample-entity', 'update', { foo: 'bar' });
 
 			assert.deepStrictEqual(data, data2);
 
-			sinon.assert.calledTwice(RouterFetcher.prototype.getEndpoint);
+			sinon.assert.calledTwice(Invoker.clientCall);
 		});
 
 	});
@@ -1148,8 +1162,9 @@ describe('MicroService call', () => {
 				secretGetValueResolves({ apiSecret });
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-					httpMethod: 'get'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/sample-entity',
+					method: 'get'
 				});
 
 				const reqheaders = {
@@ -1181,8 +1196,9 @@ describe('MicroService call', () => {
 				secretGetValueResolves({ apiSecret });
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-					httpMethod: 'get'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/sample-entity',
+					method: 'get'
 				});
 
 				const reqheaders = {
@@ -1225,8 +1241,9 @@ describe('MicroService call', () => {
 				secretGetValueResolves(apiSecret);
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-					httpMethod: 'get'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/sample-entity',
+					method: 'get'
 				});
 
 				await assert.rejects(() => ms.call('sample-service', 'sample-entity', 'list'), {
@@ -1248,8 +1265,9 @@ describe('MicroService call', () => {
 				secretThrows(sinon);
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-					httpMethod: 'get'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/sample-entity',
+					method: 'get'
 				});
 
 				await assert.rejects(() => ms.call('sample-service', 'sample-entity', 'list'), {
@@ -1266,8 +1284,9 @@ describe('MicroService call', () => {
 				secretGetValueRejects(sinon);
 
 				getEndpointStub({
-					endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-					httpMethod: 'get'
+					baseUrl: 'https://sample-service.janis-test.in',
+					path: '/api/sample-entity',
+					method: 'get'
 				});
 
 				await assert.rejects(() => ms.call('sample-service', 'sample-entity', 'list'), {
@@ -1296,8 +1315,9 @@ describe('MicroService call', () => {
 			const mockMsResponse = [{ name: 'foo' }];
 
 			getEndpointStub({
-				endpoint: 'https://sample-service.janis-test.in/api/sample-entity',
-				httpMethod: 'get'
+				baseUrl: 'https://sample-service.janis-test.in',
+				path: '/api/sample-entity',
+				method: 'get'
 			});
 
 			const reqheaders = {
