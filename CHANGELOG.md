@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [4.5.0] - 2022-12-23
+### Changed
+- Using **Janis Discovery Service** to obtain api endpoint using `service`, `namespace` and `method`
+
 ## [5.0.0-beta.1] - 2022-12-22
 ### Fixed
 - Fixed Invoker method to invoke Discovery `GetEndpoint` lambda

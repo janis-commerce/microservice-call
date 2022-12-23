@@ -14,11 +14,9 @@ The `MicroService Call` module allows the communication between services.
 npm install @janiscommerce/microservice-call
 ```
 
----
+## Endpoints
 
-## Configuration
-
-`MicroService Call` uses `Router Fetcher` check its configuration [here](https://www.npmjs.com/package/@janiscommerce/router-fetcher)
+`MicroService Call` uses **Janis Discovery Service** to obtain Api Endpoints using `service`, `namespace` and `method`.
 
 ## Session
 If an [API Session](https://www.npmjs.com/package/@janiscommerce/api-session) is injected, it will inject `janis-client` and `x-janis-user` headers when possible.
