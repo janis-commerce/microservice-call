@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [5.0.0] - 2023-04-18
+### Changed
+- Update [@janiscommerce/aws-secrets-manager](https://www.npmjs.com/package/@janiscommerce/aws-secrets-manager) to version 1xx
+- Update [@janiscommerce/lambda](https://www.npmjs.com/package/@janiscommerce/lambda) to version 6xx
+
 ## [4.5.0] - 2022-12-23
 ### Changed
 - Using **Janis Discovery Service** to obtain api endpoint using `service`, `namespace` and `method`
