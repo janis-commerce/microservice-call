@@ -17,7 +17,7 @@
     "coverage": "nyc npm test",
     "lint": "eslint lib/ tests/",
     "prepare": "husky install",
-    "build-types": "tsc lib/microservice-call.js --declaration --allowJs --emitDeclarationOnly --outDir types"
+    "build-types": "tsc lib/microservice-call.js --declaration --allowJs --emitDeclarationOnly --outDir types --skipLibCheck true"
   },
   "repository": {
     "type": "git",
@@ -43,7 +43,7 @@
     "nock": "^13.3.0",
     "nyc": "^15.1.0",
     "sinon": "^15.0.3",
-    "typescript": "^4.4.4"
+    "typescript": "^4.9.5"
   },
   "types": "types/microservice-call.d.ts"
 }
