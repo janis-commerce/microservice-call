@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [5.0.1] - 2023-09-21
+### Changed
+- Update dependencies: `@janiscommerce/aws-secrets-manager` and `@janiscommerce/lambda`
+
 ## [5.0.0] - 2023-04-18
 ### Changed
 - Update [@janiscommerce/aws-secrets-manager](https://www.npmjs.com/package/@janiscommerce/aws-secrets-manager) to version 1xx
