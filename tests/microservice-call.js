@@ -1345,4 +1345,89 @@ describe('MicroService call', () => {
 			secretsNotCalled(sinon);
 		});
 	});
+
+	describe('Using apiKeyUserId setter', () => {
+
+		beforeEach(() => {
+			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
+
+			getEndpointStub({
+				baseUrl: 'https://sample-service.janis-test.in',
+				path: '/api/alarms/{alarmName}/state',
+				method: 'POST'
+			});
+		});
+
+		const baseRequestHeaders = {
+			'content-type': 'application/json',
+			'janis-api-secret': 'insecure-secret'
+		};
+
+		const requestArgs = ['sample-service', 'alarms', 'list', { foo: 'bar' }, null, { alarmName: 'foo' }];
+
+		const mockRequest = reqheaders => {
+
+			const replyArgs = [200, { name: 'foo' }, { 'content-type': 'application/json' }];
+
+			nock('https://sample-service.janis-test.in', { reqheaders })
+				.post('/api/alarms/foo/state', { foo: 'bar' })
+				.reply(...replyArgs);
+		};
+
+		it('Should set user id in janis-api-key header', async () => {
+
+			const reqheaders = {
+				...baseRequestHeaders,
+				'janis-api-key': 'service-dummy-service_user-5f4adc8f9c4ae13ea8000000'
+			};
+
+			ms.apiKeyUserId = '5f4adc8f9c4ae13ea8000000';
+
+			mockRequest(reqheaders);
+
+			await ms.call(...requestArgs);
+
+			secretsNotCalled(sinon);
+		});
+
+		it('Should not set user id in janis-api-key header if value is falsy', async () => {
+
+			const reqheaders = {
+				...baseRequestHeaders,
+				'janis-api-key': 'service-dummy-service'
+			};
+
+			ms.apiKeyUserId = null;
+
+			mockRequest(reqheaders);
+
+			await ms.call(...requestArgs);
+
+			secretsNotCalled(sinon);
+		});
+
+		it('Should set and remove user id in janis-api-key header', async () => {
+
+			const reqheaders = {
+				...baseRequestHeaders,
+				'janis-api-key': 'service-dummy-service_user-5f4adc8f9c4ae13ea8000000'
+			};
+
+			ms.apiKeyUserId = '5f4adc8f9c4ae13ea8000000';
+
+			mockRequest(reqheaders);
+
+			await ms.call(...requestArgs);
+
+			ms.apiKeyUserId = null;
+
+			mockRequest({ ...reqheaders, 'janis-api-key': 'service-dummy-service' });
+
+			await ms.call(...requestArgs);
+
+			secretsNotCalled(sinon);
+		});
+
+	});
+
 });

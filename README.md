@@ -84,6 +84,11 @@ _Since 4.0.0_
 
 > :warning: **After version 4.0.0, `get`, `post`, `put`, `path`, `delete` are *REMOVED***  :warning:
 
+_Since 5.1.0_
+
+* `set apiKeyUserId()`
+	Setter for add user id in api-key header
+
 ## Parameters
 
 The Parameters used in the API functions.
