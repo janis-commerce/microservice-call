@@ -86,7 +86,7 @@ _Since 4.0.0_
 
 _Since 5.1.0_
 
-* `set apiKeyUserId()`
+* `set apiKeyUser()`
 	Setter for add user id in api-key header
 
 ## Parameters

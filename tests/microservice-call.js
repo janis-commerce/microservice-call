@@ -1346,7 +1346,7 @@ describe('MicroService call', () => {
 		});
 	});
 
-	describe('Using apiKeyUserId setter', () => {
+	describe('Using apiKeyUser setter', () => {
 
 		beforeEach(() => {
 			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
@@ -1381,7 +1381,7 @@ describe('MicroService call', () => {
 				'janis-api-key': 'service-dummy-service_user-5f4adc8f9c4ae13ea8000000'
 			};
 
-			ms.apiKeyUserId = '5f4adc8f9c4ae13ea8000000';
+			ms.apiKeyUser = '5f4adc8f9c4ae13ea8000000';
 
 			mockRequest(reqheaders);
 
@@ -1397,7 +1397,7 @@ describe('MicroService call', () => {
 				'janis-api-key': 'service-dummy-service'
 			};
 
-			ms.apiKeyUserId = null;
+			ms.apiKeyUser = null;
 
 			mockRequest(reqheaders);
 
@@ -1413,13 +1413,13 @@ describe('MicroService call', () => {
 				'janis-api-key': 'service-dummy-service_user-5f4adc8f9c4ae13ea8000000'
 			};
 
-			ms.apiKeyUserId = '5f4adc8f9c4ae13ea8000000';
+			ms.apiKeyUser = '5f4adc8f9c4ae13ea8000000';
 
 			mockRequest(reqheaders);
 
 			await ms.call(...requestArgs);
 
-			ms.apiKeyUserId = null;
+			ms.apiKeyUser = null;
 
 			mockRequest({ ...reqheaders, 'janis-api-key': 'service-dummy-service' });
 
