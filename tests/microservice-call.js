@@ -1345,4 +1345,41 @@ describe('MicroService call', () => {
 			secretsNotCalled(sinon);
 		});
 	});
+
+	describe('Discovery service fails', () => {
+
+		it('Should throw an error if it has an error message', async () => {
+
+			getEndpointStub({
+				errorMessage: 'An error occurred'
+			});
+
+			await assert.rejects(() => ms.call('sample-service', 'sample-entity', 'list'), {
+				name: 'MicroServiceCallError',
+				code: MicroServiceCallError.codes.DISCOVERY_ERROR,
+				message: 'Service Discovery fails getting endpoint. Error: An error occurred'
+			});
+
+			assertGetEndpoint('sample-service', 'sample-entity', 'list');
+		});
+
+		it('Should throw an error if it has no base url, path or method', async () => {
+
+			const baseUrl = 'https://sample-service.janis-test.in';
+			const path = '/api/sample-entity';
+
+			getEndpointStub({
+				baseUrl,
+				path
+			});
+
+			await assert.rejects(() => ms.call('sample-service', 'sample-entity', 'list'), {
+				name: 'MicroServiceCallError',
+				code: MicroServiceCallError.codes.DISCOVERY_ERROR,
+				message: `Could not get base url, path or method. Base url: ${baseUrl}, path: ${path}, method: undefined`
+			});
+
+			assertGetEndpoint('sample-service', 'sample-entity', 'list');
+		});
+	});
 });
