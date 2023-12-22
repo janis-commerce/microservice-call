@@ -86,8 +86,13 @@ _Since 4.0.0_
 
 _Since 5.1.0_
 
-* `set apiKeyUser()`
-	Setter for add user id in api-key header
+* `setUserId(userId)`
+
+	Function for add user id in api-key header
+
+	Params: `userId` `{String}`
+
+	Returns a `MicroServiceCallInstance`.
 
 ## Parameters
 

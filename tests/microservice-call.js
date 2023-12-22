@@ -1346,7 +1346,7 @@ describe('MicroService call', () => {
 		});
 	});
 
-	describe('Using apiKeyUser setter', () => {
+	describe('Using setUserId function', () => {
 
 		beforeEach(() => {
 			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
@@ -1381,11 +1381,11 @@ describe('MicroService call', () => {
 				'janis-api-key': 'service-dummy-service_user-5f4adc8f9c4ae13ea8000000'
 			};
 
-			ms.apiKeyUser = '5f4adc8f9c4ae13ea8000000';
-
 			mockRequest(reqheaders);
 
-			await ms.call(...requestArgs);
+			await ms
+				.setUserId('5f4adc8f9c4ae13ea8000000')
+				.call(...requestArgs);
 
 			secretsNotCalled(sinon);
 		});
@@ -1397,29 +1397,27 @@ describe('MicroService call', () => {
 				'janis-api-key': 'service-dummy-service'
 			};
 
-			ms.apiKeyUser = null;
-
 			mockRequest(reqheaders);
 
-			await ms.call(...requestArgs);
+			await ms
+				.setUserId(null)
+				.call(...requestArgs);
 
 			secretsNotCalled(sinon);
 		});
 
-		it('Should set and remove user id in janis-api-key header', async () => {
+		it('Should set and clear user id in janis-api-key header', async () => {
 
 			const reqheaders = {
 				...baseRequestHeaders,
 				'janis-api-key': 'service-dummy-service_user-5f4adc8f9c4ae13ea8000000'
 			};
 
-			ms.apiKeyUser = '5f4adc8f9c4ae13ea8000000';
-
 			mockRequest(reqheaders);
 
-			await ms.call(...requestArgs);
-
-			ms.apiKeyUser = null;
+			await ms
+				.setUserId('5f4adc8f9c4ae13ea8000000')
+				.call(...requestArgs);
 
 			mockRequest({ ...reqheaders, 'janis-api-key': 'service-dummy-service' });
 
