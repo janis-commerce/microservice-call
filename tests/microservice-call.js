@@ -43,10 +43,13 @@ describe('MicroService call', () => {
 		Discovery.cleanCache();
 	});
 
-	const getEndpointStub = result => {
+	const getEndpointStub = (result, functionError = false) => {
 
 		sinon.stub(Invoker, 'serviceCall')
-			.resolves({ payload: result });
+			.resolves({
+				payload: result,
+				...functionError && { functionError }
+			});
 	};
 
 	const assertGetEndpoint = (service, namespace, method) => {
@@ -1358,6 +1361,19 @@ describe('MicroService call', () => {
 				name: 'MicroServiceCallError',
 				code: MicroServiceCallError.codes.DISCOVERY_ERROR,
 				message: 'Service Discovery fails getting endpoint. Error: An error occurred'
+			});
+
+			assertGetEndpoint('sample-service', 'sample-entity', 'list');
+		});
+
+		it('Should throw an error if it has functionError property', async () => {
+
+			getEndpointStub({}, 'Could not execute lambda function');
+
+			await assert.rejects(() => ms.call('sample-service', 'sample-entity', 'list'), {
+				name: 'MicroServiceCallError',
+				code: MicroServiceCallError.codes.DISCOVERY_ERROR,
+				message: 'Service Discovery fails getting endpoint. Error: Could not execute lambda function'
 			});
 
 			assertGetEndpoint('sample-service', 'sample-entity', 'list');
