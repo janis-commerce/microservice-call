@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [5.1.0] - 2024-01-02
+### Added
+- Add method `setUserId()` to add `userId` in header _janis-api-key_
+
 ## [5.0.1] - 2023-09-21
 ### Changed
 - Update dependencies: `@janiscommerce/aws-secrets-manager` and `@janiscommerce/lambda`
