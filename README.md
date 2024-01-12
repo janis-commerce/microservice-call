@@ -84,6 +84,16 @@ _Since 4.0.0_
 
 > :warning: **After version 4.0.0, `get`, `post`, `put`, `path`, `delete` are *REMOVED***  :warning:
 
+_Since 5.1.0_
+
+* `setUserId(userId)`
+
+	Function for add user id in api-key header
+
+	Params: `userId` `{String}`
+
+	Returns a `MicroServiceCallInstance`.
+
 ## Parameters
 
 The Parameters used in the API functions.

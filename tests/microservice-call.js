@@ -1349,6 +1349,88 @@ describe('MicroService call', () => {
 		});
 	});
 
+	describe('Using setUserId function', () => {
+
+		beforeEach(() => {
+			process.env.JANIS_SERVICE_SECRET = 'insecure-secret';
+
+			getEndpointStub({
+				baseUrl: 'https://sample-service.janis-test.in',
+				path: '/api/alarms/{alarmName}/state',
+				method: 'POST'
+			});
+		});
+
+		const baseRequestHeaders = {
+			'content-type': 'application/json',
+			'janis-api-secret': 'insecure-secret'
+		};
+
+		const requestArgs = ['sample-service', 'alarms', 'list', { foo: 'bar' }, null, { alarmName: 'foo' }];
+
+		const mockRequest = reqheaders => {
+
+			const replyArgs = [200, { name: 'foo' }, { 'content-type': 'application/json' }];
+
+			nock('https://sample-service.janis-test.in', { reqheaders })
+				.post('/api/alarms/foo/state', { foo: 'bar' })
+				.reply(...replyArgs);
+		};
+
+		it('Should set user id in janis-api-key header', async () => {
+
+			const reqheaders = {
+				...baseRequestHeaders,
+				'janis-api-key': 'service-dummy-service_user-5f4adc8f9c4ae13ea8000000'
+			};
+
+			mockRequest(reqheaders);
+
+			await ms
+				.setUserId('5f4adc8f9c4ae13ea8000000')
+				.call(...requestArgs);
+
+			secretsNotCalled(sinon);
+		});
+
+		it('Should not set user id in janis-api-key header if value is falsy', async () => {
+
+			const reqheaders = {
+				...baseRequestHeaders,
+				'janis-api-key': 'service-dummy-service'
+			};
+
+			mockRequest(reqheaders);
+
+			await ms
+				.setUserId(null)
+				.call(...requestArgs);
+
+			secretsNotCalled(sinon);
+		});
+
+		it('Should set and clear user id in janis-api-key header', async () => {
+
+			const reqheaders = {
+				...baseRequestHeaders,
+				'janis-api-key': 'service-dummy-service_user-5f4adc8f9c4ae13ea8000000'
+			};
+
+			mockRequest(reqheaders);
+
+			await ms
+				.setUserId('5f4adc8f9c4ae13ea8000000')
+				.call(...requestArgs);
+
+			mockRequest({ ...reqheaders, 'janis-api-key': 'service-dummy-service' });
+
+			await ms.call(...requestArgs);
+
+			secretsNotCalled(sinon);
+		});
+
+	});
+
 	describe('Discovery service fails', () => {
 
 		it('Should throw an error if it has an error message', async () => {
