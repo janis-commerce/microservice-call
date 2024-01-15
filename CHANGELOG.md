@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [5.1.1] - 2024-01-15
+### Fixed
+- Add new Validations for the Invoker response to the Discovery `GetEndpoint` call
+
 ## [5.1.0] - 2024-01-02
 ### Added
 - Add method `setUserId()` to add `userId` in header _janis-api-key_
