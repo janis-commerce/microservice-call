@@ -29,7 +29,7 @@
   "dependencies": {
     "@janiscommerce/aws-secrets-manager": "^1.1.0",
     "@janiscommerce/lambda": "^6.0.5",
-    "axios": "^0.24.0",
+    "axios": "^1.12.2",
     "qa": "0.0.1",
     "qs": "^6.11.2"
   },

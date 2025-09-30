@@ -4,6 +4,8 @@ const nock = require('nock');
 const sinon = require('sinon');
 const assert = require('assert');
 
+const axios = require('axios');
+
 const { Invoker } = require('@janiscommerce/lambda');
 const MicroServiceCall = require('../lib/microservice-call');
 const MicroServiceCallError = require('../lib/microservice-call-error');
@@ -18,6 +20,8 @@ const {
 } = require('./helpers/secret-fetcher.js');
 
 const Discovery = require('../lib/discovery');
+
+const originalRequest = axios.request;
 
 describe('MicroService call', () => {
 
@@ -1479,5 +1483,44 @@ describe('MicroService call', () => {
 
 			assertGetEndpoint('sample-service', 'sample-entity', 'list');
 		});
+	});
+
+	it('Should handle headers without toJSON method', async () => {
+
+		process.env.JANIS_SERVICE_SECRET = 'test-secret';
+
+		getEndpointStub({
+			baseUrl: 'https://sample-service.janis-test.in',
+			path: '/api/sample-entity',
+			method: 'get'
+		});
+
+		const mockMsResponse = [{ name: 'foo' }];
+		const headersResponse = {
+			'content-type': 'application/json'
+		};
+
+		sinon.stub(axios, 'request').callsFake(async config => {
+			const response = await originalRequest(config);
+			// Create a plain object without toJSON method to simulate old axios behavior
+			const plainHeaders = { ...response.headers };
+			response.headers = plainHeaders;
+			return response;
+		});
+
+		nock('https://sample-service.janis-test.in')
+			.get('/api/sample-entity')
+			.reply(200, mockMsResponse, headersResponse);
+
+		const data = await ms.call('sample-service', 'sample-entity', 'list');
+
+		assert.deepStrictEqual(data, {
+			statusCode: 200,
+			statusMessage: null,
+			body: mockMsResponse,
+			headers: headersResponse
+		});
+
+		secretsNotCalled(sinon);
 	});
 });
