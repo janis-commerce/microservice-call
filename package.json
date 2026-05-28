@@ -12,12 +12,12 @@
   ],
   "scripts": {
     "test": "export TEST_ENV=true; mocha --exit -R nyan --recursive tests/",
-    "test-ci": "nyc --reporter=lcov --reporter=text-summary mocha --exit --recursive tests/",
     "watch-test": "export TEST_ENV=true; mocha --exit -R nyan -w --recursive tests/",
     "coverage": "nyc npm test",
     "lint": "eslint lib/ tests/",
     "prepare": "husky install",
-    "build-types": "tsc lib/microservice-call.js --declaration --allowJs --emitDeclarationOnly --outDir types --skipLibCheck true"
+    "build-types": "tsc lib/microservice-call.js --declaration --allowJs --emitDeclarationOnly --outDir types --skipLibCheck true",
+    "coverage-ci": "nyc --reporter=lcov --reporter=text-summary mocha --exit --recursive tests/"
   },
   "repository": {
     "type": "git",
@@ -36,7 +36,7 @@
   "devDependencies": {
     "@types/node": "^18.17.18",
     "eslint": "^7.32.0",
-    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.28.1",
     "husky": "^7.0.4",
     "mocha": "^10.2.0",
@@ -45,5 +45,8 @@
     "sinon": "^15.2.0",
     "typescript": "^4.9.5"
   },
-  "types": "types/microservice-call.d.ts"
+  "types": "types/microservice-call.d.ts",
+  "engines": {
+    "node": ">=18"
+  }
 }
