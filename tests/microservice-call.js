@@ -524,7 +524,6 @@ describe('MicroService call', () => {
 					method: 'PUT'
 				});
 
-
 				const mockMsResponse = { name: 'foo' };
 
 				const reqheaders = {
@@ -1101,7 +1100,6 @@ describe('MicroService call', () => {
 		});
 
 		it('Shouldn\'t cache the getEndpoint response after 2 times calling with different parameters', async () => {
-
 
 			sinon.stub(Invoker, 'serviceCall')
 				.onFirstCall()

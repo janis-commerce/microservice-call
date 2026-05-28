@@ -24,6 +24,8 @@ module.exports = {
 	},
 
 	rules: {
+		strict: ['error', 'global'],
+		'default-param-last': 0,
 		'operator-linebreak': 0,
 		'no-continue': 0,
 		'no-plusplus': 0,
