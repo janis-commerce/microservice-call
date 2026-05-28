@@ -30,3 +30,11 @@ jobs:
       - run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+
+  notify-slack:
+    needs: publish-npm
+    uses: janis-commerce/.github/.github/workflows/slack-notify-publish.yml@master
+    with:
+      username: Microservice Call
+    secrets:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
